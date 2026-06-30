@@ -1560,3 +1560,422 @@ body {
     font-size: 0.95rem;
   }
 }
+
+/* Section 5: Interactive Map Section */
+.map-section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 24px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #EAF2FF 0%, #FFF5F5 100%);
+  overflow: hidden;
+}
+
+.map-title {
+  font-family: 'Quicksand', sans-serif;
+  color: #1E293B;
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.map-subtitle {
+  font-family: 'Quicksand', sans-serif;
+  color: #64748B;
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0 0 40px 0;
+  max-width: 700px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.map-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  border: 4px solid #FFFFFF;
+  box-sizing: border-box;
+  background: #0F172A;
+}
+
+.map-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Map Pins */
+.map-pin-wrapper {
+  position: absolute;
+  cursor: pointer;
+  z-index: 100;
+  transform: translate(-50%, -50%);
+}
+
+.pin-toa-a {
+  top: 61%;
+  left: 31.5%;
+}
+
+.map-pin-pulse {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 52px;
+  height: 52px;
+  border: 3px solid #EF4444;
+  border-radius: 50%;
+  animation: pin-pulse 2s infinite;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.map-pin-core {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  background: #EF4444;
+  color: #FFFFFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.5);
+  transition: transform 0.2s ease;
+}
+
+.map-pin-wrapper:hover .map-pin-core {
+  transform: scale(1.15);
+  background: #DC2626;
+}
+
+@keyframes pin-pulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* Map Tooltip Card */
+.map-tooltip-card {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  width: 280px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  color: #FFFFFF;
+  text-align: left;
+  pointer-events: none;
+}
+
+/* Tooltip Triangle pointer */
+.map-tooltip-card::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: rgba(15, 23, 42, 0.92) transparent;
+  display: block;
+  width: 0;
+}
+
+.map-pin-wrapper:hover .map-tooltip-card {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.tooltip-title {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #FDA4AF;
+  margin-bottom: 6px;
+}
+
+.tooltip-text {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #E2E8F0;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.tooltip-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 12px;
+  background: #3B82F6;
+  color: #FFFFFF;
+  text-decoration: none;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+  box-sizing: border-box;
+}
+
+.tooltip-link-btn:hover {
+  background: #2563EB;
+}
+
+/* Info Panel below the map */
+.map-info-panel {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+}
+
+.info-card {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.info-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.info-content h4 {
+  font-family: 'Quicksand', sans-serif;
+  color: #1E293B;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.info-content p {
+  font-family: 'Quicksand', sans-serif;
+  color: #475569;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Scattered star sticker inside Section 5 */
+.map-sticker-star {
+  top: 10%;
+  right: 10%;
+  width: 50px;
+  height: 50px;
+  animation: float-sticker 5.5s ease-in-out infinite alternate;
+  position: absolute;
+}
+
+@media (max-width: 768px) {
+  .map-title {
+    font-size: 2.2rem;
+  }
+  .map-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+  }
+  .map-info-panel {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .info-card {
+    padding: 16px;
+  }
+  .map-tooltip-card {
+    width: 240px;
+    padding: 12px;
+  }
+  .tooltip-title {
+    font-size: 0.95rem;
+  }
+  .tooltip-text {
+    font-size: 0.8rem;
+  }
+}
+
+/* Section 6: Contact & Time Section */
+.contact-section {
+  width: 100%;
+  padding: 80px 24px;
+  box-sizing: border-box;
+  background: #FFF5F5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-card {
+  width: 100%;
+  max-width: 800px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
+  padding: 48px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 40px;
+  box-shadow: 0 15px 35px rgba(255, 182, 193, 0.2);
+}
+
+.contact-info-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.contact-icon-wrapper {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+}
+
+.contact-block-title {
+  font-family: 'Quicksand', sans-serif;
+  color: #1E293B;
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0 0 16px 0;
+}
+
+.contact-text-highlight {
+  font-family: 'Quicksand', sans-serif;
+  color: #E11D48; /* Red/pink highlight */
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.contact-text-sub {
+  font-family: 'Quicksand', sans-serif;
+  color: #475569;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.contact-link {
+  color: #2563EB;
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.contact-link:hover {
+  color: #1D4ED8;
+  text-decoration: underline;
+}
+
+.contact-divider {
+  width: 1px;
+  background: linear-gradient(180deg, rgba(226, 232, 240, 0) 0%, rgba(226, 232, 240, 1) 50%, rgba(226, 232, 240, 0) 100%);
+}
+
+/* Footer Section */
+.thank-you-footer {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.thank-you-footer p {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #E11D48;
+  margin: 0 0 16px 0;
+  animation: heart-beat 1.6s ease-in-out infinite alternate;
+}
+
+.footer-copyright {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #94A3B8;
+}
+
+@keyframes heart-beat {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+@media (max-width: 768px) {
+  .contact-card {
+    flex-direction: column;
+    padding: 32px 24px;
+    gap: 32px;
+  }
+  
+  .contact-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(226, 232, 240, 0) 0%, rgba(226, 232, 240, 1) 50%, rgba(226, 232, 240, 0) 100%);
+  }
+  
+  .contact-block-title {
+    font-size: 1.4rem;
+  }
+  
+  .contact-text-highlight {
+    font-size: 1.05rem;
+  }
+  
+  .thank-you-footer p {
+    font-size: 1.15rem;
+  }
+}

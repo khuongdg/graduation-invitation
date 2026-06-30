@@ -136,7 +136,7 @@ export default function Home() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.phone || !formData.email) return;
-    
+
     setSubmitState('loading');
     try {
       const response = await fetch('/api/register', {
@@ -192,10 +192,10 @@ export default function Home() {
       <main className="hero-wrapper">
         {/* Sparkle overlays */}
         <div className="sparkle-overlay"></div>
-        
+
         {/* Ambient magical glow layer */}
         <div className="magical-glow"></div>
-        
+
         {/* Floating light particles */}
         <Particles />
 
@@ -236,21 +236,21 @@ export default function Home() {
 
       {/* Section 2: Gratitude */}
       <section className="gratitude-section" ref={section2Ref}>
-        
+
         {/* Background Decorative Sparkles */}
         <div className="bg-sparkle" style={{ top: '15%', left: '10%', opacity: 0.15 }}>
           <svg width="40" height="40" viewBox="0 0 24 24" fill="#FFD700">
-            <path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z"/>
+            <path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z" />
           </svg>
         </div>
         <div className="bg-sparkle" style={{ bottom: '15%', right: '8%', opacity: 0.15 }}>
           <svg width="55" height="55" viewBox="0 0 24 24" fill="#FFD700">
-            <path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z"/>
+            <path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z" />
           </svg>
         </div>
         <div className="bg-sparkle" style={{ top: '60%', left: '6%', opacity: 0.1 }}>
           <svg width="35" height="35" viewBox="0 0 24 24" fill="#FF8A9A">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         </div>
 
@@ -259,25 +259,25 @@ export default function Home() {
           {/* Card Decorations/Stickers */}
           <div className="sticker sticker-flower-left">
             <svg viewBox="0 0 100 100" width="100%" height="100%">
-              <path d="M50 15 C58 2 72 2 78 12 C84 22 84 36 71 44 C84 52 84 66 78 76 C72 86 58 86 50 73 C42 86 28 86 22 76 C16 66 16 52 29 44 C16 36 16 22 22 12 C28 2 42 2 50 15 Z" fill="#FFE3E3" stroke="#FFA6A6" strokeWidth="3"/>
+              <path d="M50 15 C58 2 72 2 78 12 C84 22 84 36 71 44 C84 52 84 66 78 76 C72 86 58 86 50 73 C42 86 28 86 22 76 C16 66 16 52 29 44 C16 36 16 22 22 12 C28 2 42 2 50 15 Z" fill="#FFE3E3" stroke="#FFA6A6" strokeWidth="3" />
               <circle cx="50" cy="44" r="10" fill="#FFD0D0" />
             </svg>
           </div>
           <div className="sticker sticker-heart-pink">
             <svg viewBox="0 0 24 24" fill="#FF8A9A" width="100%" height="100%">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
           </div>
           <div className="sticker sticker-star-gold-1">
             <svg viewBox="0 0 24 24" fill="#FFD700" width="100%" height="100%">
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
             </svg>
           </div>
 
           <h2 className="card-title-red">Trân trọng</h2>
           <p className="card-text">
-            Trân trọng những kiến thức, những kỹ năng mà mình đã trau dồi và tích tích lũy được. 
-            Trân trọng những khoảnh khắc, những cung bậc cảm xúc mà mình đã trải qua. 
+            Trân trọng những kiến thức, những kỹ năng mà mình đã trau dồi và tích tích lũy được.
+            Trân trọng những khoảnh khắc, những cung bậc cảm xúc mà mình đã trải qua.
             Trân trọng những cố gắng, sự kiên trì của bản thân trước những thử thách và cám dỗ.
           </p>
         </div>
@@ -302,24 +302,24 @@ export default function Home() {
           </div>
           <div className="sticker sticker-flower-right">
             <svg viewBox="0 0 100 100" width="100%" height="100%">
-              <path d="M50 15 C58 2 72 2 78 12 C84 22 84 36 71 44 C84 52 84 66 78 76 C72 86 58 86 50 73 C42 86 28 86 22 76 C16 66 16 52 29 44 C16 36 16 22 22 12 C28 2 42 2 50 15 Z" fill="#E8F4FF" stroke="#8CB9FF" strokeWidth="3"/>
+              <path d="M50 15 C58 2 72 2 78 12 C84 22 84 36 71 44 C84 52 84 66 78 76 C72 86 58 86 50 73 C42 86 28 86 22 76 C16 66 16 52 29 44 C16 36 16 22 22 12 C28 2 42 2 50 15 Z" fill="#E8F4FF" stroke="#8CB9FF" strokeWidth="3" />
               <circle cx="50" cy="44" r="10" fill="#BFDAFF" />
             </svg>
           </div>
           <div className="sticker sticker-heart-blue">
             <svg viewBox="0 0 24 24" fill="#8EBAFF" width="100%" height="100%">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
           </div>
           <div className="sticker sticker-star-gold-2">
             <svg viewBox="0 0 24 24" fill="#FFD700" width="100%" height="100%">
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
             </svg>
           </div>
 
           <h2 className="card-title-blue">Biết ơn</h2>
           <p className="card-text">
-            Biết ơn cha mẹ, thầy cô, bạn bè, những người đã luôn bên cạnh, động viên và hỗ trợ con/em/mình 
+            Biết ơn cha mẹ, thầy cô, bạn bè, những người đã luôn bên cạnh, động viên và hỗ trợ con/em/mình
             trong suốt chặng đường học tập. Sự quan tâm và yêu thương ấy chính là ngọn đèn soi sáng tôi trên con đường trưởng thành.
           </p>
         </div>
@@ -345,18 +345,18 @@ export default function Home() {
         </div>
         <div className="sticker rsvp-sticker-star-1">
           <svg viewBox="0 0 24 24" fill="#FFD700" width="100%" height="100%">
-            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
           </svg>
         </div>
         <div className="sticker rsvp-sticker-flower">
           <svg viewBox="0 0 100 100" width="100%" height="100%">
-            <path d="M50 15 C58 2 72 2 78 12 C84 22 84 36 71 44 C84 52 84 66 78 76 C72 86 58 86 50 73 C42 86 28 86 22 76 C16 66 16 52 29 44 C16 36 16 22 22 12 C28 2 42 2 50 15 Z" fill="#FFE3E3" stroke="#FFA6A6" strokeWidth="3"/>
+            <path d="M50 15 C58 2 72 2 78 12 C84 22 84 36 71 44 C84 52 84 66 78 76 C72 86 58 86 50 73 C42 86 28 86 22 76 C16 66 16 52 29 44 C16 36 16 22 22 12 C28 2 42 2 50 15 Z" fill="#FFE3E3" stroke="#FFA6A6" strokeWidth="3" />
             <circle cx="50" cy="44" r="10" fill="#FFD0D0" />
           </svg>
         </div>
         <div className="sticker rsvp-sticker-heart">
           <svg viewBox="0 0 24 24" fill="#FF8A9A" width="100%" height="100%">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         </div>
 
@@ -364,12 +364,12 @@ export default function Home() {
         <div className="rsvp-flower">
           <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="60" cy="60" r="50" fill="#EBF4FF" stroke="#BDDAFF" strokeWidth="2" strokeDasharray="4 4" />
-            <path d="M60 25C70 20 85 25 85 40C85 55 60 75 60 75C60 75 35 55 35 40C35 25 50 20 60 25Z" fill="#BDDAFF" opacity="0.6"/>
-            <path d="M60 35C66 31 77 34 77 44C77 54 60 67 60 67C60 67 43 54 43 44C43 31 54 31 60 35Z" fill="#8CB9FF" opacity="0.8"/>
+            <path d="M60 25C70 20 85 25 85 40C85 55 60 75 60 75C60 75 35 55 35 40C35 25 50 20 60 25Z" fill="#BDDAFF" opacity="0.6" />
+            <path d="M60 35C66 31 77 34 77 44C77 54 60 67 60 67C60 67 43 54 43 44C43 31 54 31 60 35Z" fill="#8CB9FF" opacity="0.8" />
             <path d="M60 42C63 39 70 41 70 47C70 53 60 60 60 60C60 60 50 53 50 47C50 39 57 39 60 42Z" fill="#3F75C4" />
-            <circle cx="60" cy="46" r="2" fill="#FFD700"/>
-            <circle cx="56" cy="49" r="1.5" fill="#FFD700"/>
-            <circle cx="64" cy="49" r="1.5" fill="#FFD700"/>
+            <circle cx="60" cy="46" r="2" fill="#FFD700" />
+            <circle cx="56" cy="49" r="1.5" fill="#FFD700" />
+            <circle cx="64" cy="49" r="1.5" fill="#FFD700" />
           </svg>
         </div>
 
@@ -407,17 +407,17 @@ export default function Home() {
         </div>
         <div className="sticker cta-sticker-star">
           <svg viewBox="0 0 24 24" fill="#FFD700" width="100%" height="100%">
-            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
           </svg>
         </div>
         <div className="sticker cta-sticker-heart">
           <svg viewBox="0 0 24 24" fill="#FF8A9A" width="100%" height="100%">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         </div>
         <div className="sticker cta-sticker-flower">
           <svg viewBox="0 0 100 100" width="100%" height="100%">
-            <path d="M50 15 C58 2 72 2 78 12 C84 22 84 36 71 44 C84 52 84 66 78 76 C72 86 58 86 50 73 C42 86 28 86 22 76 C16 66 16 52 29 44 C16 36 16 22 22 12 C28 2 42 2 50 15 Z" fill="#E8F4FF" stroke="#8CB9FF" strokeWidth="3"/>
+            <path d="M50 15 C58 2 72 2 78 12 C84 22 84 36 71 44 C84 52 84 66 78 76 C72 86 58 86 50 73 C42 86 28 86 22 76 C16 66 16 52 29 44 C16 36 16 22 22 12 C28 2 42 2 50 15 Z" fill="#E8F4FF" stroke="#8CB9FF" strokeWidth="3" />
             <circle cx="50" cy="44" r="10" fill="#BFDAFF" />
           </svg>
         </div>
@@ -426,16 +426,16 @@ export default function Home() {
         <p className="cta-subheader">
           Em/mình mong được lưu lại những khoảnh khắc ý nghĩa ấy cùng với những &quot;người thân yêu&quot; của em/mình.
         </p>
-        
+
         <p className="cta-prompt">&quot;Người thương&quot; hãy click vào đây</p>
-        
+
         <div className="interactive-area">
           <button className="coral-btn" onClick={handleOpenModal}>
-            <svg className="sparkle-effect sp-1" viewBox="0 0 24 24" fill="#FFF"><path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z"/></svg>
-            <svg className="sparkle-effect sp-2" viewBox="0 0 24 24" fill="#FFF"><path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z"/></svg>
-            <svg className="sparkle-effect sp-3" viewBox="0 0 24 24" fill="#FFF"><path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z"/></svg>
-            <svg className="sparkle-effect sp-4" viewBox="0 0 24 24" fill="#FFF"><path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z"/></svg>
-            
+            <svg className="sparkle-effect sp-1" viewBox="0 0 24 24" fill="#FFF"><path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z" /></svg>
+            <svg className="sparkle-effect sp-2" viewBox="0 0 24 24" fill="#FFF"><path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z" /></svg>
+            <svg className="sparkle-effect sp-3" viewBox="0 0 24 24" fill="#FFF"><path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z" /></svg>
+            <svg className="sparkle-effect sp-4" viewBox="0 0 24 24" fill="#FFF"><path d="M12 2l2.4 7.2L22 11.6l-5.6 5.6 1.6 8-6-4.8-6 4.8 1.6-8L2 11.6l7.6-2.4L12 2z" /></svg>
+
             ✨ Nhận Thiệp Ngay ✨
           </button>
         </div>
@@ -447,12 +447,12 @@ export default function Home() {
           {/* Decorative background stickers */}
           <div className="sticker memory-sticker-star">
             <svg viewBox="0 0 24 24" fill="#FFD700" width="100%" height="100%">
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
             </svg>
           </div>
           <div className="sticker memory-sticker-heart">
             <svg viewBox="0 0 24 24" fill="#FF8A9A" width="100%" height="100%">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
           </div>
 
@@ -525,6 +525,105 @@ export default function Home() {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 5: Interactive Map */}
+      {hasRSVPed && (
+        <section className="map-section">
+          {/* Decorative background stickers */}
+          <div className="sticker map-sticker-star">
+            <svg viewBox="0 0 24 24" fill="#FFD700" width="100%" height="100%">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            </svg>
+          </div>
+
+          <h2 className="map-title">Địa điểm</h2>
+          <p className="map-subtitle">
+            Trường Đại học Tôn Đức Thắng, số 19 đường Nguyễn Hữu Thọ, Phường Tân Hưng, Tp. Hồ Chí Minh
+          </p>
+
+          <div className="map-layout">
+            {/* Map Container */}
+            <div className="map-container">
+              <img src="/assets/tdtu_mapv1.png" alt="TDTU Map Layout" className="map-image" />
+
+              {/* Pulsing Hotspot Pin on Building A */}
+              <div className="map-pin-wrapper pin-toa-a">
+                <div className="map-pin-pulse"></div>
+                <div className="map-pin-core">A</div>
+
+                {/* Tooltip Card */}
+                <div className="map-tooltip-card">
+                  <div className="tooltip-title">🎓 Tòa A - Hội trường lớn</div>
+                  <div className="tooltip-text">
+                    Nơi diễn ra Lễ Tốt nghiệp chính thức trao bằng cử nhân của Khương Dương!
+                  </div>
+                  <a
+                    href="https://maps.app.goo.gl/wYh1yC8qXvswXg4g9"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tooltip-link-btn"
+                  >
+                    🗺️ Xem đường đi (Google Maps)
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Info details block */}
+            <div className="map-info-panel">
+              <div className="info-card">
+                <div className="info-icon">📍</div>
+                <div className="info-content">
+                  <h4>Địa điểm chính thức</h4>
+                  <p>Hội trường lớn Tòa nhà A, Trường Đại học Tôn Đức Thắng.</p>
+                </div>
+              </div>
+              <div className="info-card">
+                <div className="info-icon">🛵</div>
+                <div className="info-content">
+                  <h4>Cổng vào & Gửi xe</h4>
+                  <p>Các bạn đi vào bằng <b>Cổng 7</b> hoặc <b>Cổng 5</b> (Đường D6). Gửi xe máy tại tầng hầm Nhà Thi Đấu hoặc tầng hầm Tòa nhà F, D, L.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 6: Time & Contact Info */}
+      {hasRSVPed && (
+        <section className="contact-section">
+          <div className="contact-card">
+            {/* Time Card */}
+            <div className="contact-info-block">
+              <div className="contact-icon-wrapper">🕒</div>
+              <h3 className="contact-block-title">Thời gian</h3>
+              <p className="contact-text-highlight">Buổi sáng, Thứ 6 ngày 30 tháng 05 năm 2025.</p>
+              <p className="contact-text-sub">Thời gian: 10:30 - 12:00</p>
+            </div>
+
+            <div className="contact-divider"></div>
+
+            {/* Contact Card */}
+            <div className="contact-info-block">
+              <div className="contact-icon-wrapper">📞</div>
+              <h3 className="contact-block-title">Liên hệ</h3>
+              <p className="contact-text-highlight">
+                Số điện thoại: <a href="tel:0945629869" className="contact-link">0945629869</a>
+              </p>
+              <p className="contact-text-sub">
+                Facebook: <a href="https://www.facebook.com/kerostar.2112/" target="_blank" rel="noopener noreferrer" className="contact-link">facebook.com/kduong.kero/</a>
+              </p>
+            </div>
+          </div>
+
+          {/* Sweet closing thank you note */}
+          <div className="thank-you-footer">
+            <p>Sự hiện diện của bạn là niềm vinh hạnh lớn của mình! ❤️</p>
+            <span className="footer-copyright">© 2026 Khương Dương. All rights reserved.</span>
           </div>
         </section>
       )}
@@ -615,7 +714,7 @@ export default function Home() {
           ) : (
             <div className="success-container">
               <svg className="success-icon" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
               </svg>
               <h3 className="success-title">Gửi ảnh thành công!</h3>
               <p className="success-text">
@@ -705,7 +804,7 @@ export default function Home() {
           ) : (
             <div className="success-container">
               <svg className="success-icon" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
               </svg>
               <h3 className="success-title">Đăng ký thành công!</h3>
               <p className="success-text">
