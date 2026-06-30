@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+
+// Configure Cloudinary using environment variables
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const defaultMemories = [
   { id: 1, name: "Nhóm bạn thân", caption: "Tình bạn diệu kỳ, luôn rạng rỡ nhé!", imageUrl: "/default_memories/memory_grad_chibi.png" },
@@ -13,23 +19,37 @@ const defaultMemories = [
   { id: 8, name: "Quốc Huy", caption: "Chúc mừng ngày đặc biệt của bạn nhé!", imageUrl: "/default_memories/memory_grad_group.png" }
 ];
 
-const getDbPath = () => path.join(process.cwd(), 'public', 'memories', 'memories.json');
+const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbyqsbM-SLexlpFCmKAOspEzpQXlRVgEucuA6Xl2e-YrlMdzL2F3TZF0OTvUGTEKtacSsQ/exec';
 
 export async function GET() {
   try {
-    const dbPath = getDbPath();
-    if (!fs.existsSync(dbPath)) {
-      return NextResponse.json({ success: true, memories: defaultMemories });
+    const params = new URLSearchParams({ action: 'getMemories' });
+    const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      redirect: 'follow',
+      next: { revalidate: 0 } // Disable fetch cache
+    });
+
+    let userMemories = [];
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.memories) {
+        userMemories = data.memories;
+      }
+    } else {
+      console.error('Apps Script getMemories returned error status:', response.status);
     }
-    const fileData = fs.readFileSync(dbPath, 'utf8');
-    const userMemories = JSON.parse(fileData);
     
     // Combine user uploaded memories with default ones to ensure rolls are rich
     const combined = [...userMemories, ...defaultMemories];
     return NextResponse.json({ success: true, memories: combined });
   } catch (error) {
-    console.error('Error fetching memories:', error);
-    return NextResponse.json({ success: false, message: 'Failed to fetch memories' }, { status: 500 });
+    console.error('Error fetching memories from Apps Script:', error);
+    // Fallback to default memories if offline
+    return NextResponse.json({ success: true, memories: defaultMemories });
   }
 }
 
@@ -44,49 +64,51 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Chưa có ảnh nào được gửi!' }, { status: 400 });
     }
 
-    // Convert file to buffer and write to public/memories/
+    // Convert file to base64 string for uploading to Cloudinary
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const base64Image = buffer.toString('base64');
     
-    const safeFileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'memories');
-    
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    
-    const filePath = path.join(uploadDir, safeFileName);
-    fs.writeFileSync(filePath, buffer);
-    
-    const imageUrl = `/memories/${safeFileName}`;
-    
-    // Save to memories.json
-    const dbPath = getDbPath();
-    let memories = [];
-    if (fs.existsSync(dbPath)) {
-      try {
-        memories = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-      } catch (e) {
-        memories = [];
+    // Upload image to Cloudinary
+    const uploadResponse = await cloudinary.uploader.upload(
+      `data:${file.type};base64,${base64Image}`,
+      {
+        folder: 'graduation_memories',
       }
+    );
+
+    const imageUrl = uploadResponse.secure_url;
+    
+    // Proxy request to Google Sheets via Apps Script
+    const response = await fetch(googleScriptUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'saveMemory',
+        name,
+        caption,
+        image: imageUrl // Send the persistent Cloudinary URL
+      }),
+      redirect: 'follow'
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        const combined = [...data.memories, ...defaultMemories];
+        return NextResponse.json({ success: true, memories: combined });
+      } else {
+        console.error('Apps Script saveMemory failed:', data.error);
+        return NextResponse.json({ success: false, message: data.error || 'Lỗi lưu trữ ảnh!' }, { status: 502 });
+      }
+    } else {
+      console.error('Apps Script saveMemory returned error status:', response.status);
+      return NextResponse.json({ success: false, message: 'Đồng bộ lưu trữ đám mây thất bại!' }, { status: 502 });
     }
-    
-    const newMemory = {
-      id: Date.now(),
-      name,
-      caption,
-      imageUrl,
-      timestamp: new Date().toISOString()
-    };
-    
-    memories.unshift(newMemory); // Add to the beginning so user sees their photo immediately
-    fs.writeFileSync(dbPath, JSON.stringify(memories, null, 2), 'utf8');
-    
-    // Return all combined memories
-    const combined = [...memories, ...defaultMemories];
-    return NextResponse.json({ success: true, memories: combined, newMemory });
   } catch (error) {
     console.error('Error uploading memory:', error);
-    return NextResponse.json({ success: false, message: 'Lỗi tải ảnh lên máy chủ!' }, { status: 500 });
+    return NextResponse.json({ success: false, message: 'Lỗi hệ thống khi tải ảnh lên Cloudinary!' }, { status: 500 });
   }
 }
