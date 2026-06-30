@@ -79,18 +79,19 @@ export async function POST(request) {
 
     const imageUrl = uploadResponse.secure_url;
     
-    // Proxy request to Google Sheets via Apps Script
-    const response = await fetch(googleScriptUrl, {
-      method: 'POST',
+    // Proxy request to Google Sheets via Apps Script GET (avoids POST-redirect body loss in Node)
+    const params = new URLSearchParams({
+      action: 'saveMemory',
+      name,
+      caption,
+      image: imageUrl
+    });
+
+    const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
-      body: JSON.stringify({
-        action: 'saveMemory',
-        name,
-        caption,
-        image: imageUrl // Send the persistent Cloudinary URL
-      }),
       redirect: 'follow'
     });
     
