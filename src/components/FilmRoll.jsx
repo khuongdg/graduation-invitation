@@ -10,6 +10,7 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
   const isHoveredRef = useRef(false);
   const animFrameRef = useRef(null);
   const moveDistRef = useRef(0);
+  const touchTimerRef = useRef(null);
 
   const safeMemories = Array.isArray(memories) ? memories : [];
   const displayMemories = direction === 'rtl' ? [...safeMemories].reverse() : safeMemories;
@@ -47,9 +48,11 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
 
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
     };
   }, [direction, safeMemories]);
 
+  // Mouse Drag Handlers
   const handleMouseDown = (e) => {
     const container = containerRef.current;
     if (!container) return;
@@ -99,8 +102,51 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     }
   };
 
+  // Touch Handlers for Mobile
+  const handleTouchStart = (e) => {
+    const container = containerRef.current;
+    if (!container || e.touches.length !== 1) return;
+    isDraggingRef.current = true;
+    moveDistRef.current = 0;
+    startXRef.current = e.touches[0].pageX - container.offsetLeft;
+    scrollLeftRef.current = container.scrollLeft;
+
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDraggingRef.current || e.touches.length !== 1) return;
+    const container = containerRef.current;
+    if (!container) return;
+    const x = e.touches[0].pageX - container.offsetLeft;
+    const walk = (x - startXRef.current) * 1.5;
+    moveDistRef.current += Math.abs(walk);
+    container.scrollLeft = scrollLeftRef.current - walk;
+
+    const currentSetWidth = container.scrollWidth / 3;
+    if (currentSetWidth > 0) {
+      if (container.scrollLeft >= currentSetWidth * 2) {
+        container.scrollLeft -= currentSetWidth;
+        startXRef.current = e.pageX - container.offsetLeft;
+        scrollLeftRef.current = container.scrollLeft;
+      } else if (container.scrollLeft <= 0) {
+        container.scrollLeft += currentSetWidth;
+        startXRef.current = e.pageX - container.offsetLeft;
+        scrollLeftRef.current = container.scrollLeft;
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    isDraggingRef.current = false;
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    touchTimerRef.current = setTimeout(() => {
+      isHoveredRef.current = false;
+    }, 1000);
+  };
+
   const handlePhotoItemClick = (m) => {
-    if (moveDistRef.current < 8 && onPhotoClick) {
+    if (moveDistRef.current < 10 && onPhotoClick) {
       onPhotoClick(m);
     }
   };
@@ -117,8 +163,10 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => (isHoveredRef.current = true)}
-        onTouchStart={() => (isHoveredRef.current = true)}
-        onTouchEnd={() => (isHoveredRef.current = false)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
       >
         <div className="film-strip">
           {repeatedMemories.map((m, idx) => (

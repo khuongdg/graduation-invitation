@@ -15,7 +15,9 @@ export default function Particles() {
     let animationFrameId;
     let particles = [];
     let shootingStars = [];
-    const particleCount = 75;
+
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const particleCount = isMobile ? 25 : 65;
 
     const resizeCanvas = () => {
       if (!canvas) return;
@@ -41,7 +43,7 @@ export default function Particles() {
         const h = canvas.height || 600;
         this.x = Math.random() * w;
         this.y = init ? Math.random() * h : h + 10;
-        this.size = Math.random() * 2.5 + 0.8;
+        this.size = Math.random() * 2.2 + 0.8;
         this.speedY = -(Math.random() * 0.4 + 0.1);
         this.speedX = (Math.random() - 0.5) * 0.2;
         this.alpha = init ? Math.random() * 0.7 : 0;
@@ -86,10 +88,15 @@ export default function Particles() {
         }
 
         ctx.fillStyle = color;
-        ctx.shadowBlur = this.size * 2;
-        ctx.shadowColor = this.colorType === 1 ? '#00f0ff' : this.colorType === 2 ? '#ff2a55' : '#ffffff';
+        // Skip shadowBlur on mobile for 60fps mobile GPU rendering
+        if (!isMobile) {
+          ctx.shadowBlur = this.size * 2;
+          ctx.shadowColor = this.colorType === 1 ? '#00f0ff' : this.colorType === 2 ? '#ff2a55' : '#ffffff';
+        }
         ctx.fill();
-        ctx.shadowBlur = 0;
+        if (!isMobile) {
+          ctx.shadowBlur = 0;
+        }
       }
     }
 
@@ -155,7 +162,8 @@ export default function Particles() {
       particles.push(new StarParticle());
     }
 
-    for (let i = 0; i < 3; i++) {
+    const starCount = isMobile ? 1 : 3;
+    for (let i = 0; i < starCount; i++) {
       shootingStars.push(new ShootingStar());
     }
 

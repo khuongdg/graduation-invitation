@@ -10,8 +10,8 @@ const defaultGlobePhotos = [
   { id: 'g5', title: "Hành trình mới", caption: "Sẵn sàng vươn xa cùng tri thức", imageUrl: "/assets/test.JPG" }
 ];
 
-// Galaxy Starfield HTML5 Canvas Component
-function GalaxyStarfield() {
+// Galaxy Starfield HTML5 Canvas Component (Mobile Optimized)
+function GalaxyStarfield({ isMobile }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -30,22 +30,22 @@ function GalaxyStarfield() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Generate 120 star particles with varying size, color, speed & twinkle
-    const stars = Array.from({ length: 120 }, () => ({
+    const starCount = isMobile ? 35 : 100;
+    const stars = Array.from({ length: starCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      radius: Math.random() * 2.2 + 0.6,
+      radius: Math.random() * 2.0 + 0.6,
       color: ['#00F0FF', '#FF6B8B', '#FFD700', '#A855F7', '#FFFFFF', '#38BDF8'][Math.floor(Math.random() * 6)],
       alpha: Math.random(),
       twinkleFactor: (Math.random() * 0.04 + 0.01) * (Math.random() > 0.5 ? 1 : -1)
     }));
 
-    // Generate comets / shooting stars
-    const comets = Array.from({ length: 4 }, () => ({
+    const cometCount = isMobile ? 1 : 3;
+    const comets = Array.from({ length: cometCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * (height / 2),
-      length: Math.random() * 90 + 50,
-      speed: Math.random() * 4.5 + 2.5,
+      length: Math.random() * 80 + 40,
+      speed: Math.random() * 4 + 2,
       angle: Math.PI / 4,
       opacity: 0
     }));
@@ -63,15 +63,17 @@ function GalaxyStarfield() {
         ctx.save();
         ctx.globalAlpha = Math.max(0.15, Math.min(1, star.alpha));
         ctx.fillStyle = star.color;
-        ctx.shadowColor = star.color;
-        ctx.shadowBlur = star.radius * 5;
+        
+        if (!isMobile) {
+          ctx.shadowColor = star.color;
+          ctx.shadowBlur = star.radius * 4;
+        }
 
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // 4-Point Cross flare for bright stars
-        if (star.radius > 1.8) {
+        if (!isMobile && star.radius > 1.8) {
           ctx.strokeStyle = star.color;
           ctx.lineWidth = 0.6;
           ctx.beginPath();
@@ -84,9 +86,9 @@ function GalaxyStarfield() {
         ctx.restore();
       });
 
-      // Draw Comets / Shooting Stars
+      // Draw Comets
       comets.forEach((comet) => {
-        if (Math.random() < 0.004 && comet.opacity <= 0) {
+        if (Math.random() < 0.005 && comet.opacity <= 0) {
           comet.x = Math.random() * width * 0.7;
           comet.y = Math.random() * (height * 0.4);
           comet.opacity = 1;
@@ -95,7 +97,7 @@ function GalaxyStarfield() {
         if (comet.opacity > 0) {
           comet.x += Math.cos(comet.angle) * comet.speed;
           comet.y += Math.sin(comet.angle) * comet.speed;
-          comet.opacity -= 0.012;
+          comet.opacity -= 0.015;
 
           ctx.save();
           ctx.globalAlpha = Math.max(0, comet.opacity);
@@ -110,7 +112,7 @@ function GalaxyStarfield() {
           gradient.addColorStop(1, 'transparent');
 
           ctx.strokeStyle = gradient;
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 1.5;
           ctx.beginPath();
           ctx.moveTo(comet.x, comet.y);
           ctx.lineTo(
@@ -131,7 +133,7 @@ function GalaxyStarfield() {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <canvas
@@ -156,16 +158,17 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
 
   const containerRef = useRef(null);
   const animFrameRef = useRef(null);
+  const cardRefs = useRef([]);
   const rotYRef = useRef(0);
   const rotXRef = useRef(0.2);
   const isDraggingRef = useRef(false);
   const lastMouseRef = useRef({ x: 0, y: 0 });
   const velocityRef = useRef({ x: 0, y: 0 });
+  const touchDistRef = useRef(0);
 
-  // Prepare full list of photos (pad if few photos to make sphere rich)
+  // Prepare full list of photos
   const sourcePhotos = (Array.isArray(photos) && photos.length > 0) ? photos : defaultGlobePhotos;
   
-  // Ensure we have at least 10 items on sphere for a rich 3D globe effect
   let globeItems = [...sourcePhotos];
   if (globeItems.length < 10) {
     let copyIndex = 0;
@@ -215,10 +218,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
     pointsRef.current = pts;
   }, [globeItems.length, isOpen, sphereRadius]);
 
-  // Dynamic projected points state for rendering
-  const [renderedPoints, setRenderedPoints] = useState([]);
-
-  // 3D Animation Loop
+  // High-performance direct DOM transform render loop (bypasses React setState overhead)
   useEffect(() => {
     if (!isOpen) return;
 
@@ -230,10 +230,10 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
 
       // Apply auto spin if enabled and not currently dragging or hovering
       if (isAutoSpinning && !isDraggingRef.current && hoveredIdx === null) {
-        rotYRef.current += 0.35 * dt; // Smooth auto rotation around Y axis
+        rotYRef.current += 0.35 * dt;
       }
 
-      // Apply drag velocity decay (inertia)
+      // Apply drag velocity decay
       if (!isDraggingRef.current) {
         rotYRef.current += velocityRef.current.x;
         rotXRef.current += velocityRef.current.y;
@@ -241,7 +241,6 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
         velocityRef.current.y *= 0.93;
       }
 
-      // Clamp rotX to avoid upside down flips
       rotXRef.current = Math.max(-1.4, Math.min(1.4, rotXRef.current));
 
       const cosY = Math.cos(rotYRef.current);
@@ -249,34 +248,33 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
       const cosX = Math.cos(rotXRef.current);
       const sinX = Math.sin(rotXRef.current);
 
-      const projected = pointsRef.current.map((pt, idx) => {
-        // Rotate around Y
+      // Direct DOM mutation for 60 FPS mobile performance
+      const pts = pointsRef.current;
+      for (let i = 0; i < pts.length; i++) {
+        const el = cardRefs.current[i];
+        if (!el) continue;
+
+        const pt = pts[i];
         const x1 = pt.x * cosY - pt.z * sinY;
         const z1 = pt.z * cosY + pt.x * sinY;
 
-        // Rotate around X
         const y2 = pt.y * cosX - z1 * sinX;
         const z2 = z1 * cosX + pt.y * sinX;
 
-        // Scale & opacity based on Z depth
         const scale = ((z2 + sphereRadius * 1.5) / (sphereRadius * 2.5)) * zoomLevel;
         const opacity = Math.max(0.2, Math.min(1, (z2 + sphereRadius * 1.2) / (sphereRadius * 2.2)));
+        const screenX = x1 * zoomLevel;
+        const screenY = y2 * zoomLevel;
+        const zIndex = Math.round(z2 + 1000);
 
-        return {
-          ...pt,
-          id: pt.photo.id || idx,
-          screenX: x1 * zoomLevel,
-          screenY: y2 * zoomLevel,
-          screenZ: z2,
-          scale: Math.max(0.4, scale),
-          opacity: opacity,
-          zIndex: Math.round(z2 + 1000)
-        };
-      });
+        const isHovered = hoveredIdx === i;
+        const activeScale = isHovered ? Math.max(0.5, scale) * 1.25 : Math.max(0.4, scale);
 
-      // Sort by zIndex so back cards render behind front cards
-      projected.sort((a, b) => a.zIndex - b.zIndex);
-      setRenderedPoints(projected);
+        el.style.transform = `translate3d(${screenX}px, ${screenY}px, 0) scale(${activeScale})`;
+        el.style.opacity = isHovered ? '1' : opacity;
+        el.style.zIndex = isHovered ? 9999 : zIndex;
+        el.style.display = 'block';
+      }
 
       animFrameRef.current = requestAnimationFrame(renderLoop);
     };
@@ -291,6 +289,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
   // Mouse & Touch Drag Controls
   const handleMouseDown = (e) => {
     isDraggingRef.current = true;
+    touchDistRef.current = 0;
     lastMouseRef.current = { x: e.clientX, y: e.clientY };
     velocityRef.current = { x: 0, y: 0 };
   };
@@ -299,6 +298,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
     if (!isDraggingRef.current) return;
     const deltaX = e.clientX - lastMouseRef.current.x;
     const deltaY = e.clientY - lastMouseRef.current.y;
+    touchDistRef.current += Math.abs(deltaX) + Math.abs(deltaY);
 
     rotYRef.current += deltaX * 0.006;
     rotXRef.current -= deltaY * 0.006;
@@ -318,6 +318,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
   const handleTouchStart = (e) => {
     if (e.touches.length !== 1) return;
     isDraggingRef.current = true;
+    touchDistRef.current = 0;
     lastMouseRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     velocityRef.current = { x: 0, y: 0 };
   };
@@ -326,6 +327,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
     if (!isDraggingRef.current || e.touches.length !== 1) return;
     const deltaX = e.touches[0].clientX - lastMouseRef.current.x;
     const deltaY = e.touches[0].clientY - lastMouseRef.current.y;
+    touchDistRef.current += Math.abs(deltaX) + Math.abs(deltaY);
 
     rotYRef.current += deltaX * 0.007;
     rotXRef.current -= deltaY * 0.007;
@@ -336,6 +338,12 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
     };
 
     lastMouseRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const handleCardClick = (photo) => {
+    if (touchDistRef.current < 10) {
+      setSelectedPhoto(photo);
+    }
   };
 
   // Keyboard Navigation (ESC to close)
@@ -361,7 +369,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
       inset: 0,
       zIndex: 9999,
       background: 'rgba(4, 5, 13, 0.95)',
-      backdropFilter: 'blur(30px)',
+      backdropFilter: isMobile ? 'blur(10px)' : 'blur(25px)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -371,7 +379,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
       color: '#FFFFFF',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
-      {/* Dynamic Cosmic Nebula Background Layers */}
+      {/* Cosmic Nebula Background Layers */}
       <div style={{
         position: 'absolute',
         inset: 0,
@@ -380,57 +388,44 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
         overflow: 'hidden',
         background: 'radial-gradient(ellipse at 50% 50%, #0d0826 0%, #060514 60%, #020208 100%)'
       }}>
-        {/* Glowing Nebula Orbs */}
-        <div style={{
-          position: 'absolute',
-          top: '10%',
-          left: '15%',
-          width: '50vw',
-          height: '50vw',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(112, 0, 255, 0.32) 0%, rgba(0, 240, 255, 0.18) 50%, transparent 80%)',
-          filter: 'blur(70px)',
-          animation: 'pulseGlow 12s infinite alternate ease-in-out'
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '8%',
-          right: '12%',
-          width: '45vw',
-          height: '45vw',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255, 42, 85, 0.28) 0%, rgba(147, 51, 234, 0.22) 50%, transparent 80%)',
-          filter: 'blur(80px)',
-          animation: 'pulseGlow 10s infinite alternate-reverse ease-in-out'
-        }} />
-        <div style={{
-          position: 'absolute',
-          top: '45%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '55vw',
-          height: '55vw',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, rgba(0, 240, 255, 0.2) 40%, transparent 70%)',
-          filter: 'blur(90px)'
-        }} />
+        {!isMobile && (
+          <>
+            <div style={{
+              position: 'absolute',
+              top: '10%',
+              left: '15%',
+              width: '50vw',
+              height: '50vw',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(112, 0, 255, 0.32) 0%, rgba(0, 240, 255, 0.18) 50%, transparent 80%)',
+              filter: 'blur(70px)',
+              animation: 'pulseGlow 12s infinite alternate ease-in-out'
+            }} />
+            <div style={{
+              position: 'absolute',
+              bottom: '8%',
+              right: '12%',
+              width: '45vw',
+              height: '45vw',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255, 42, 85, 0.28) 0%, rgba(147, 51, 234, 0.22) 50%, transparent 80%)',
+              filter: 'blur(80px)',
+              animation: 'pulseGlow 10s infinite alternate-reverse ease-in-out'
+            }} />
+          </>
+        )}
 
-        {/* Floating Glowing Galaxy Symbols (✦ 🪐 ✨ 💫 🌌 ⭐ ☄️) */}
+        {/* Floating Glowing Symbols */}
         <div className="galaxy-floating-symbol" style={{ top: '10%', left: '8%', color: '#00F0FF', fontSize: '1.9rem', animationDelay: '0s' }}>✦</div>
         <div className="galaxy-floating-symbol" style={{ top: '18%', right: '12%', color: '#FFD700', fontSize: '2.4rem', animationDelay: '1.4s' }}>✨</div>
         <div className="galaxy-floating-symbol" style={{ bottom: '24%', left: '10%', color: '#FF6B8B', fontSize: '2.1rem', animationDelay: '2.8s' }}>💫</div>
         <div className="galaxy-floating-symbol" style={{ bottom: '16%', right: '16%', color: '#A855F7', fontSize: '2.5rem', animationDelay: '0.7s' }}>🪐</div>
-        <div className="galaxy-floating-symbol" style={{ top: '68%', left: '46%', color: '#00F0FF', fontSize: '1.6rem', animationDelay: '2.1s' }}>⭐</div>
-        <div className="galaxy-floating-symbol" style={{ top: '15%', left: '42%', color: '#FFD700', fontSize: '1.8rem', animationDelay: '3.9s' }}>🌌</div>
-        <div className="galaxy-floating-symbol" style={{ bottom: '38%', right: '8%', color: '#38BDF8', fontSize: '1.7rem', animationDelay: '4.8s' }}>☄️</div>
       </div>
 
       {/* Dynamic HTML5 Canvas Starfield */}
-      <GalaxyStarfield />
+      <GalaxyStarfield isMobile={isMobile} />
 
-      {/* ==========================================================================
-         TOP HEADER BAR
-         ========================================================================== */}
+      {/* TOP HEADER BAR */}
       <header style={{
         width: '100%',
         padding: isMobile ? '12px 16px' : '20px 32px',
@@ -466,7 +461,6 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
           </div>
         </div>
 
-        {/* Counter Badge & Close Button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px' }}>
           <div style={{
             background: 'rgba(255, 255, 255, 0.08)',
@@ -475,8 +469,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
             padding: isMobile ? '4px 10px' : '6px 16px',
             fontSize: isMobile ? '0.75rem' : '0.85rem',
             color: '#00F0FF',
-            fontWeight: '600',
-            backdropFilter: 'blur(10px)'
+            fontWeight: '600'
           }}>
             📸 {sourcePhotos.length} ảnh
           </div>
@@ -495,8 +488,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'all 0.2s ease',
-              backdropFilter: 'blur(10px)'
+              transition: 'all 0.2s ease'
             }}
             title="Đóng cửa sổ 3D (ESC)"
           >
@@ -505,9 +497,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
         </div>
       </header>
 
-      {/* ==========================================================================
-         CENTRAL 3D SPHERE CANVAS CONTAINER
-         ========================================================================== */}
+      {/* CENTRAL 3D SPHERE CANVAS CONTAINER */}
       <div
         ref={containerRef}
         onMouseDown={handleMouseDown}
@@ -535,12 +525,11 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
           height: `${coreDiameter}px`,
           borderRadius: '50%',
           background: 'radial-gradient(circle at 35% 35%, rgba(0, 240, 255, 0.45), rgba(112, 0, 255, 0.3) 60%, rgba(6, 7, 17, 0.85) 100%)',
-          boxShadow: '0 0 100px rgba(0, 240, 255, 0.45), inset 0 0 60px rgba(0, 240, 255, 0.5)',
+          boxShadow: '0 0 80px rgba(0, 240, 255, 0.45), inset 0 0 50px rgba(0, 240, 255, 0.5)',
           border: '1px solid rgba(0, 240, 255, 0.45)',
           pointerEvents: 'none',
           animation: 'globePulse 4s infinite alternate ease-in-out'
         }}>
-          {/* Cosmic Ring 1 (Cyan Orbit) */}
           <div style={{
             position: 'absolute',
             inset: '-24px',
@@ -549,8 +538,6 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
             transform: 'rotateX(70deg)',
             animation: 'orbitSpin 18s linear infinite'
           }} />
-
-          {/* Cosmic Ring 2 (Magenta Orbit) */}
           <div style={{
             position: 'absolute',
             inset: '-36px',
@@ -561,110 +548,97 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
           }} />
         </div>
 
-        {/* Render 3D Floating Photo Cards */}
-        {renderedPoints.map((item, idx) => {
-          const isHovered = hoveredIdx === idx;
-          const cardWidth = baseCardWidth * item.scale * (isHovered ? 1.3 : 1);
-          const cardHeight = baseCardHeight * item.scale * (isHovered ? 1.3 : 1);
+        {/* Render 3D Floating Photo Cards using Direct DOM refs */}
+        {globeItems.map((photo, idx) => (
+          <div
+            key={photo.id || idx}
+            ref={(el) => (cardRefs.current[idx] = el)}
+            onMouseEnter={() => setHoveredIdx(idx)}
+            onMouseLeave={() => setHoveredIdx(null)}
+            onClick={() => handleCardClick(photo)}
+            onTouchEnd={() => handleCardClick(photo)}
+            style={{
+              position: 'absolute',
+              width: `${baseCardWidth}px`,
+              height: `${baseCardHeight}px`,
+              cursor: 'pointer',
+              willChange: 'transform, opacity'
+            }}
+          >
+            <div style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '14px',
+              overflow: 'hidden',
+              background: 'rgba(15, 20, 40, 0.88)',
+              border: hoveredIdx === idx
+                ? '2px solid #00F0FF'
+                : photo.isFeatured
+                  ? '1.5px solid #FFD700'
+                  : '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: hoveredIdx === idx
+                ? '0 10px 30px rgba(0, 240, 255, 0.6)'
+                : photo.isFeatured
+                  ? '0 4px 20px rgba(255, 215, 0, 0.3)'
+                  : '0 4px 15px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}>
+              <img
+                src={photo.imageUrl}
+                alt={photo.title || 'Kỷ niệm'}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                  pointerEvents: 'none'
+                }}
+              />
 
-          return (
-            <div
-              key={item.id}
-              onMouseEnter={() => setHoveredIdx(idx)}
-              onMouseLeave={() => setHoveredIdx(null)}
-              onClick={() => setSelectedPhoto(item.photo)}
-              style={{
-                position: 'absolute',
-                transform: `translate3d(${item.screenX}px, ${item.screenY}px, 0)`,
-                width: `${cardWidth}px`,
-                height: `${cardHeight}px`,
-                zIndex: isHovered ? 9999 : item.zIndex,
-                opacity: isHovered ? 1 : item.opacity,
-                cursor: 'pointer',
-                transition: isDraggingRef.current ? 'none' : 'transform 0.1s ease-out, filter 0.2s ease',
-                filter: isHovered ? 'brightness(1.2) contrast(1.1)' : 'none'
-              }}
-            >
-              <div style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: '14px',
-                overflow: 'hidden',
-                background: 'rgba(15, 20, 40, 0.85)',
-                border: isHovered
-                  ? '2px solid #00F0FF'
-                  : item.photo.isFeatured
-                    ? '1.5px solid #FFD700'
-                    : '1px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: isHovered
-                  ? '0 10px 30px rgba(0, 240, 255, 0.6)'
-                  : item.photo.isFeatured
-                    ? '0 4px 20px rgba(255, 215, 0, 0.3)'
-                    : '0 4px 15px rgba(0, 0, 0, 0.5)',
-                backdropFilter: 'blur(8px)',
-                position: 'relative'
-              }}>
-                <img
-                  src={item.photo.imageUrl}
-                  alt={item.photo.title || 'Kỷ niệm'}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    display: 'block',
-                    pointerEvents: 'none'
-                  }}
-                />
-
-                {/* Title badge overlay on photo */}
-                {item.photo.title && (
+              {photo.title && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  padding: '16px 8px 6px 8px',
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%)',
+                  pointerEvents: 'none'
+                }}>
                   <div style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: '16px 8px 6px 8px',
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%)',
-                    pointerEvents: 'none'
+                    fontSize: isMobile ? '0.68rem' : '0.78rem',
+                    fontWeight: '700',
+                    color: '#FFF',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    textShadow: '0 1px 3px rgba(0,0,0,0.9)'
                   }}>
-                    <div style={{
-                      fontSize: `${Math.max(0.65, 0.75 * item.scale)}rem`,
-                      fontWeight: '700',
-                      color: '#FFF',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      textShadow: '0 1px 3px rgba(0,0,0,0.9)'
-                    }}>
-                      {item.photo.title}
-                    </div>
+                    {photo.title}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Star icon if featured */}
-                {item.photo.isFeatured && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '4px',
-                    right: '4px',
-                    fontSize: '0.75rem',
-                    filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.8))'
-                  }}>
-                    ⭐
-                  </span>
-                )}
-              </div>
+              {photo.isFeatured && (
+                <span style={{
+                  position: 'absolute',
+                  top: '4px',
+                  right: '4px',
+                  fontSize: '0.75rem',
+                  filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.8))'
+                }}>
+                  ⭐
+                </span>
+              )}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
-      {/* ==========================================================================
-         BOTTOM CONTROLS BAR & HINT FOOTER
-         ========================================================================== */}
+      {/* BOTTOM CONTROLS BAR */}
       <footer style={{
         width: '100%',
-        padding: '16px 32px 24px 32px',
+        padding: isMobile ? '12px 16px 18px 16px' : '16px 32px 24px 32px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -672,20 +646,18 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
         zIndex: 10,
         background: 'linear-gradient(to top, rgba(6, 7, 17, 0.95), transparent)'
       }}>
-        {/* Interactive Controls Buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button
             onClick={() => setIsAutoSpinning(!isAutoSpinning)}
             style={{
-              padding: '10px 18px',
+              padding: isMobile ? '8px 14px' : '10px 18px',
               borderRadius: '20px',
               background: isAutoSpinning ? 'rgba(0, 240, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)',
               border: isAutoSpinning ? '1px solid #00F0FF' : '1px solid rgba(255, 255, 255, 0.2)',
               color: isAutoSpinning ? '#00F0FF' : '#FFF',
-              fontSize: '0.85rem',
+              fontSize: '0.82rem',
               fontWeight: '600',
               cursor: 'pointer',
-              backdropFilter: 'blur(10px)',
               transition: 'all 0.2s ease'
             }}
           >
@@ -699,15 +671,14 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
               setZoomLevel(1);
             }}
             style={{
-              padding: '10px 18px',
+              padding: isMobile ? '8px 14px' : '10px 18px',
               borderRadius: '20px',
               background: 'rgba(255, 255, 255, 0.08)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               color: '#FFF',
-              fontSize: '0.85rem',
+              fontSize: '0.82rem',
               fontWeight: '600',
               cursor: 'pointer',
-              backdropFilter: 'blur(10px)',
               transition: 'all 0.2s ease'
             }}
           >
@@ -718,8 +689,8 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
             <button
               onClick={() => setZoomLevel((z) => Math.max(0.6, z - 0.15))}
               style={{
-                width: '36px',
-                height: '36px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '50%',
                 background: 'rgba(255, 255, 255, 0.08)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -737,8 +708,8 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
             <button
               onClick={() => setZoomLevel((z) => Math.min(1.8, z + 0.15))}
               style={{
-                width: '36px',
-                height: '36px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '50%',
                 background: 'rgba(255, 255, 255, 0.08)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -753,13 +724,12 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
           </div>
         </div>
 
-        {/* User Hint Text */}
-        <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.55)', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.55)', textAlign: 'center' }}>
           💡 <strong>Mẹo:</strong> Rê chuột / Vuốt để xoay quả địa cầu 3D. Nhấn vào từng bức ảnh để xem phóng to chi tiết!
         </p>
       </footer>
 
-      {/* Photo Lightbox Popup (Matching Image 1 Style) */}
+      {/* Photo Lightbox Popup */}
       {selectedPhoto && (
         <div className="glass-modal-overlay open" onClick={() => setSelectedPhoto(null)} style={{ zIndex: 10000 }}>
           <div className="glass-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '680px', width: '92%' }}>
