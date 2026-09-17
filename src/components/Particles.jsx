@@ -14,46 +14,60 @@ export default function Particles() {
 
     let animationFrameId;
     let particles = [];
-    const particleCount = 45;
+    let shootingStars = [];
+    const particleCount = 75;
 
     const resizeCanvas = () => {
-      if (!canvas.parentElement) return;
-      const rect = canvas.parentElement.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
+      if (!canvas) return;
+      const parent = canvas.parentElement || (typeof document !== 'undefined' ? document.body : null);
+      if (!parent) return;
+      const rect = parent.getBoundingClientRect();
+      canvas.width = rect.width || (typeof window !== 'undefined' ? window.innerWidth : 800);
+      canvas.height = rect.height || (typeof window !== 'undefined' ? window.innerHeight : 600);
     };
 
     resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', resizeCanvas);
+    }
 
-    class Particle {
+    class StarParticle {
       constructor() {
         this.reset(true);
       }
 
       reset(init = false) {
-        this.x = Math.random() * canvas.width;
-        this.y = init ? Math.random() * canvas.height : canvas.height + 10;
-        this.size = Math.random() * 3 + 1;
-        this.speedY = -(Math.random() * 0.5 + 0.15);
-        this.speedX = (Math.random() - 0.5) * 0.25;
-        this.alpha = init ? Math.random() * 0.4 : 0;
-        this.maxAlpha = Math.random() * 0.6 + 0.2;
-        this.colorType = Math.floor(Math.random() * 3); // 0: White, 1: Glowing Blue, 2: Warm gold
+        const w = canvas.width || 800;
+        const h = canvas.height || 600;
+        this.x = Math.random() * w;
+        this.y = init ? Math.random() * h : h + 10;
+        this.size = Math.random() * 2.5 + 0.8;
+        this.speedY = -(Math.random() * 0.4 + 0.1);
+        this.speedX = (Math.random() - 0.5) * 0.2;
+        this.alpha = init ? Math.random() * 0.7 : 0;
+        this.maxAlpha = Math.random() * 0.8 + 0.2;
+        this.twinkleSpeed = Math.random() * 0.02 + 0.005;
+        this.twinkleDir = Math.random() > 0.5 ? 1 : -1;
+        this.colorType = Math.floor(Math.random() * 4);
       }
 
       update() {
+        const w = canvas.width || 800;
+        const h = canvas.height || 600;
         this.y += this.speedY;
         this.x += this.speedX;
 
-        // Fade in when starting, fade out near the top
-        if (this.y < canvas.height * 0.25) {
-          this.alpha -= 0.008;
-        } else if (this.alpha < this.maxAlpha) {
-          this.alpha += 0.005;
+        // Twinkling effect
+        this.alpha += this.twinkleSpeed * this.twinkleDir;
+        if (this.alpha >= this.maxAlpha) {
+          this.alpha = this.maxAlpha;
+          this.twinkleDir = -1;
+        } else if (this.alpha <= 0.1) {
+          this.alpha = 0.1;
+          this.twinkleDir = 1;
         }
 
-        if (this.y < -10 || this.x < -10 || this.x > canvas.width + 10 || this.alpha <= 0) {
+        if (this.y < -10 || this.x < -10 || this.x > w + 10) {
           this.reset();
         }
       }
@@ -61,32 +75,101 @@ export default function Particles() {
       draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        
+
         let color = `rgba(255, 255, 255, ${this.alpha})`;
         if (this.colorType === 1) {
-          color = `rgba(128, 243, 255, ${this.alpha})`;
+          color = `rgba(0, 240, 255, ${this.alpha})`;
         } else if (this.colorType === 2) {
-          color = `rgba(255, 250, 204, ${this.alpha})`; // Magical warm gold
+          color = `rgba(255, 42, 85, ${this.alpha * 0.85})`;
+        } else if (this.colorType === 3) {
+          color = `rgba(255, 215, 0, ${this.alpha * 0.9})`;
         }
-        
+
         ctx.fillStyle = color;
-        ctx.shadowBlur = this.size * 1.5;
-        ctx.shadowColor = this.colorType === 1 ? '#00f0ff' : '#ffffff';
+        ctx.shadowBlur = this.size * 2;
+        ctx.shadowColor = this.colorType === 1 ? '#00f0ff' : this.colorType === 2 ? '#ff2a55' : '#ffffff';
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset for performance
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    class ShootingStar {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        const w = canvas.width || 800;
+        const h = canvas.height || 600;
+        this.x = Math.random() * w * 1.2;
+        this.y = Math.random() * h * 0.5;
+        this.len = Math.random() * 80 + 40;
+        this.speed = Math.random() * 6 + 4;
+        this.size = Math.random() * 1.5 + 1;
+        this.life = 0;
+        this.maxLife = Math.random() * 40 + 30;
+        this.active = false;
+        this.wait = Math.random() * 200 + 100;
+      }
+
+      update() {
+        if (!this.active) {
+          this.wait--;
+          if (this.wait <= 0) {
+            this.active = true;
+          }
+          return;
+        }
+
+        this.x -= this.speed * 1.2;
+        this.y += this.speed * 0.8;
+        this.life++;
+
+        if (this.life >= this.maxLife) {
+          this.reset();
+        }
+      }
+
+      draw() {
+        if (!this.active) return;
+        const opacity = 1 - this.life / this.maxLife;
+
+        const tailX = this.x + this.len * 1.2;
+        const tailY = this.y - this.len * 0.8;
+
+        const grad = ctx.createLinearGradient(this.x, this.y, tailX, tailY);
+        grad.addColorStop(0, `rgba(255, 255, 255, ${opacity})`);
+        grad.addColorStop(0.3, `rgba(0, 240, 255, ${opacity * 0.7})`);
+        grad.addColorStop(1, 'rgba(0, 240, 255, 0)');
+
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(tailX, tailY);
+        ctx.lineWidth = this.size;
+        ctx.strokeStyle = grad;
+        ctx.stroke();
       }
     }
 
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
+      particles.push(new StarParticle());
+    }
+
+    for (let i = 0; i < 3; i++) {
+      shootingStars.push(new ShootingStar());
     }
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+      ctx.clearRect(0, 0, canvas.width || 800, canvas.height || 600);
+
       particles.forEach((particle) => {
         particle.update();
         particle.draw();
+      });
+
+      shootingStars.forEach((star) => {
+        star.update();
+        star.draw();
       });
 
       animationFrameId = requestAnimationFrame(animate);
@@ -95,10 +178,14 @@ export default function Particles() {
     animate();
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      cancelAnimationFrame(animationFrameId);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', resizeCanvas);
+      }
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="particles-canvas" />;
+  return <canvas ref={canvasRef} className="particles-canvas" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }} />;
 }

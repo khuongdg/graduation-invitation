@@ -1,0 +1,93 @@
+[
+  {
+    "id": 1789564716631,
+    "title": "",
+    "caption": "",
+    "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789564714/journey_photos/y6cewcu6b4ig1u6nwttu.png",
+    "isFeatured": false
+  },
+  {
+    "id": 1789564717418,
+    "title": "",
+    "caption": "",
+    "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789564716/journey_photos/rrwy4cgzr3nhek6vac2e.jpg",
+    "isFeatured": false
+  },
+  {
+    "id": 1789564722366,
+    "title": "",
+    "caption": "",
+    "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789564721/journey_photos/wnfi1nzdvswyxvakni1n.png",
+    "isFeatured": true
+  },
+  {
+    "id": 1789564726952,
+    "title": "",
+    "caption": "",
+    "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789564726/journey_photos/yvo7fxpw6itvgkfzwqy5.png",
+    "isFeatured": true
+  },
+  {
+    "id": 1789564738784,
+    "title": "",
+    "caption": "",
+    "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789564737/journey_photos/qdig1w5mxtr0ugdbgcco.png",
+    "isFeatured": false
+  },
+  {
+    "id": 1789564740876,
+    "title": "",
+    "caption": "",
+    "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789564739/journey_photos/v2m19k7pshddk9hr5vrm.jpg",
+    "isFeatured": false
+  },
+  {
+    "id": 1789564743187,
+    "title": "",
+    "caption": "",
+    "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789564741/journey_photos/rmc5rup6rth6isqmdmsv.jpg",
+    "isFeatured": false
+  },
+  {
+    "id": 1789564747222,
+    "title": "",
+    "caption": "",
+    "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789564745/journey_photos/fi5oc9uukojenymxom2v.png",
+    "isFeatured": true
+  },
+  {
+    "id": 1789563653165,
+    "title": "",
+    "caption": "",
+    "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789563652/journey_photos/fbp2ykouesfbhptwbq8m.jpg",
+    "isFeatured": false
+  },
+  {
+    "id": 1,
+    "title": "Khuôn viên TDTU",
+    "imageUrl": "/default_memories/memory_grad_solo.png",
+    "caption": "Trường Đại học Tôn Đức Thắng",
+    "isFeatured": false
+  },
+  {
+    "id": 2,
+    "title": "Nhóm bạn thân",
+    "imageUrl": "/default_memories/memory_grad_chibi.png",
+    "caption": "Kỷ niệm ngày chụp ảnh",
+    "isFeatured": false
+  },
+  {
+    "id": 3,
+    "title": "Lễ Tốt Nghiệp",
+    "imageUrl": "/default_memories/memory_grad_cap.png",
+    "caption": "Tung bay những ước mơ",
+    "isFeatured": true
+  },
+  {
+    "id": 4,
+    "title": "Thầy cô & Bạn bè",
+    "imageUrl": "/default_memories/memory_grad_group.png",
+    "caption": "Trân trọng từng khoảnh khắc",
+    "isFeatured": true
+  }
+]
