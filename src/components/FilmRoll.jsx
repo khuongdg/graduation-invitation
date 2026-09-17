@@ -19,21 +19,30 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     const container = containerRef.current;
     if (!container) return;
 
-    const setWidth = container.scrollWidth / 3;
-    if (setWidth > 0 && container.scrollLeft === 0) {
-      container.scrollLeft = setWidth;
-    }
+    const setInitialScroll = () => {
+      const setWidth = container.scrollWidth / 3;
+      if (setWidth > 0 && (container.scrollLeft === 0 || isNaN(container.scrollLeft))) {
+        container.scrollLeft = setWidth;
+      }
+    };
+
+    setInitialScroll();
+    const timer = setTimeout(setInitialScroll, 300);
 
     const speed = direction === 'ltr' ? 0.8 : -0.8;
 
     const animate = () => {
       if (container && !isDraggingRef.current && !isHoveredRef.current) {
+        if (isNaN(container.scrollLeft)) {
+          container.scrollLeft = container.scrollWidth / 3;
+        }
+
         container.scrollLeft += speed;
 
         const totalWidth = container.scrollWidth;
         const currentSetWidth = totalWidth / 3;
 
-        if (currentSetWidth > 0) {
+        if (currentSetWidth > 0 && !isNaN(container.scrollLeft)) {
           if (container.scrollLeft >= currentSetWidth * 2) {
             container.scrollLeft -= currentSetWidth;
           } else if (container.scrollLeft <= 0) {
@@ -49,6 +58,7 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+      clearTimeout(timer);
     };
   }, [direction, safeMemories]);
 
@@ -89,7 +99,7 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     container.scrollLeft = scrollLeftRef.current - walk;
 
     const currentSetWidth = container.scrollWidth / 3;
-    if (currentSetWidth > 0) {
+    if (currentSetWidth > 0 && !isNaN(container.scrollLeft)) {
       if (container.scrollLeft >= currentSetWidth * 2) {
         container.scrollLeft -= currentSetWidth;
         startXRef.current = e.pageX - container.offsetLeft;
@@ -102,10 +112,10 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     }
   };
 
-  // Touch Handlers for Mobile
+  // Touch Handlers for Mobile (Fix e.touches[0].pageX NaN bug)
   const handleTouchStart = (e) => {
     const container = containerRef.current;
-    if (!container || e.touches.length !== 1) return;
+    if (!container || !e.touches || e.touches.length !== 1) return;
     isDraggingRef.current = true;
     moveDistRef.current = 0;
     startXRef.current = e.touches[0].pageX - container.offsetLeft;
@@ -115,23 +125,24 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
   };
 
   const handleTouchMove = (e) => {
-    if (!isDraggingRef.current || e.touches.length !== 1) return;
+    if (!isDraggingRef.current || !e.touches || e.touches.length !== 1) return;
     const container = containerRef.current;
     if (!container) return;
-    const x = e.touches[0].pageX - container.offsetLeft;
+    const pageX = e.touches[0].pageX;
+    const x = pageX - container.offsetLeft;
     const walk = (x - startXRef.current) * 1.5;
     moveDistRef.current += Math.abs(walk);
     container.scrollLeft = scrollLeftRef.current - walk;
 
     const currentSetWidth = container.scrollWidth / 3;
-    if (currentSetWidth > 0) {
+    if (currentSetWidth > 0 && !isNaN(container.scrollLeft)) {
       if (container.scrollLeft >= currentSetWidth * 2) {
         container.scrollLeft -= currentSetWidth;
-        startXRef.current = e.pageX - container.offsetLeft;
+        startXRef.current = pageX - container.offsetLeft;
         scrollLeftRef.current = container.scrollLeft;
       } else if (container.scrollLeft <= 0) {
         container.scrollLeft += currentSetWidth;
-        startXRef.current = e.pageX - container.offsetLeft;
+        startXRef.current = pageX - container.offsetLeft;
         scrollLeftRef.current = container.scrollLeft;
       }
     }
@@ -142,7 +153,14 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
     touchTimerRef.current = setTimeout(() => {
       isHoveredRef.current = false;
-    }, 1000);
+    }, 500);
+  };
+
+  const handleMouseEnter = (e) => {
+    // Only set hover pause for real mouse pointer (ignore mobile synthetic touch hover)
+    if (e.pointerType !== 'touch') {
+      isHoveredRef.current = true;
+    }
   };
 
   const handlePhotoItemClick = (m) => {
@@ -162,7 +180,7 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
         onMouseLeave={handleMouseLeave}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
-        onMouseEnter={() => (isHoveredRef.current = true)}
+        onMouseEnter={handleMouseEnter}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
