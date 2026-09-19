@@ -166,8 +166,32 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
   const velocityRef = useRef({ x: 0, y: 0 });
   const touchDistRef = useRef(0);
 
+  const [fetchedPhotos, setFetchedPhotos] = useState(photos);
+
+  useEffect(() => {
+    if (Array.isArray(photos) && photos.length > 0) {
+      setFetchedPhotos(photos);
+    }
+  }, [photos]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetch(`/api/journey?t=${Date.now()}`, { cache: 'no-store' })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && Array.isArray(data.photos) && data.photos.length > 0) {
+            setFetchedPhotos(data.photos);
+          }
+        })
+        .catch((err) => console.error('Globe modal fetch error:', err));
+    }
+  }, [isOpen]);
+
   // Prepare full list of photos
-  const sourcePhotos = (Array.isArray(photos) && photos.length > 0) ? photos : defaultGlobePhotos;
+  const activePhotos = (Array.isArray(fetchedPhotos) && fetchedPhotos.length > 0)
+    ? fetchedPhotos
+    : ((Array.isArray(photos) && photos.length > 0) ? photos : defaultGlobePhotos);
+  const sourcePhotos = activePhotos;
   
   let globeItems = [...sourcePhotos];
   if (globeItems.length < 10) {

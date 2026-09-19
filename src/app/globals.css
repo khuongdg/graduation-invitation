@@ -437,6 +437,13 @@ body {
   .hero-candidate-badge {
     padding: 8px 20px;
     margin-bottom: 12px;
+    max-width: 96%;
+  }
+
+  .hero-candidate-name {
+    font-size: clamp(0.82rem, 3.8vw, 1.05rem);
+    letter-spacing: 0.14em;
+    white-space: nowrap;
   }
 
   .hero-quote-italic {
@@ -445,8 +452,23 @@ body {
   }
 
   .btn-begin-journey {
-    padding: 12px 28px;
-    font-size: 0.95rem;
+    padding: 7px 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    gap: 6px;
+  }
+
+  .btn-confirm-attendance {
+    padding: 8px 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    gap: 6px;
+  }
+
+  .pill-arrow-circle {
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
   }
 
   .hero-scroll-btn {
@@ -496,6 +518,38 @@ body {
     padding: 20px 12px;
     border-radius: 24px;
     margin-bottom: 0;
+  }
+
+  .hero-candidate-badge {
+    padding: 7px 16px;
+    margin-bottom: 10px;
+    max-width: 98%;
+  }
+
+  .hero-candidate-name {
+    font-size: clamp(0.75rem, 3.6vw, 0.9rem);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  .btn-begin-journey {
+    padding: 6px 14px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    gap: 4px;
+  }
+
+  .btn-confirm-attendance {
+    padding: 6px 14px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    gap: 4px;
+  }
+
+  .pill-arrow-circle {
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
   }
 
   .hero-scroll-btn {
@@ -618,7 +672,8 @@ body {
   z-index: 5;
   display: inline-flex;
   align-items: center;
-  padding: 12px 36px;
+  justify-content: center;
+  padding: 12px 32px;
   border-radius: 50px;
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px);
@@ -627,6 +682,7 @@ body {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
   margin-bottom: 24px;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-width: 95%;
 }
 
 .hero-candidate-badge:hover {
@@ -638,11 +694,12 @@ body {
 
 .hero-candidate-name {
   font-family: 'Be Vietnam Pro', sans-serif;
-  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-size: clamp(0.85rem, 2vw, 1.35rem);
   font-weight: 600;
   color: #FFFFFF;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* Quote */
@@ -665,8 +722,8 @@ body {
   z-index: 5;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 18px 44px;
+  gap: 10px;
+  padding: 12px 32px;
   border-radius: 50px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(25px);
@@ -674,8 +731,8 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: #FFFFFF;
   font-family: 'Be Vietnam Pro', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
   overflow: hidden;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5);
@@ -1064,14 +1121,14 @@ body {
 .btn-confirm-attendance {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
-  padding: 18px 36px;
+  gap: 10px;
+  padding: 12px 28px;
   border-radius: 50px;
   background: linear-gradient(135deg, #ff2a55 0%, #9333ea 100%);
   border: none;
   color: #FFFFFF;
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
   box-shadow: 0 10px 30px rgba(255, 42, 85, 0.4);
   transition: all 0.3s ease;

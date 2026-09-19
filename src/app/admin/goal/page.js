@@ -127,7 +127,7 @@ export default function AdminGoalPage() {
   const fetchJourneyPhotos = async () => {
     try {
       setJourneyLoading(true);
-      const res = await fetch('/api/journey');
+      const res = await fetch(`/api/journey?t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.success) {
         setJourneyPhotos(data.photos || []);
@@ -143,7 +143,7 @@ export default function AdminGoalPage() {
   const fetchMemories = async () => {
     try {
       setMemLoading(true);
-      const res = await fetch('/api/memories');
+      const res = await fetch(`/api/memories?t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.success) {
         setMemories(data.memories || []);
@@ -181,9 +181,10 @@ export default function AdminGoalPage() {
       formData.append('title', jTitle || '');
       formData.append('caption', jCaption || '');
 
-      const res = await fetch('/api/journey', {
+      const res = await fetch(`/api/journey?t=${Date.now()}`, {
         method: 'POST',
         body: formData,
+        cache: 'no-store'
       });
 
       const data = await res.json();
@@ -213,8 +214,9 @@ export default function AdminGoalPage() {
   const handleJourneyDelete = async (id) => {
     if (!confirm('Bạn có chắc chắn muốn xóa ảnh này khỏi Section 2?')) return;
     try {
-      const res = await fetch(`/api/journey?id=${id}`, {
+      const res = await fetch(`/api/journey?id=${id}&t=${Date.now()}`, {
         method: 'DELETE',
+        cache: 'no-store'
       });
       const data = await res.json();
       if (data.success) {
@@ -237,10 +239,11 @@ export default function AdminGoalPage() {
     }
 
     try {
-      const res = await fetch('/api/journey', {
+      const res = await fetch(`/api/journey?t=${Date.now()}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, isFeatured: !currentStatus }),
+        cache: 'no-store'
       });
       const data = await res.json();
       if (data.success) {

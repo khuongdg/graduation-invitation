@@ -68,26 +68,33 @@ export default function Home() {
   };
 
   // Fetch Section 2 Journey Photos
-  useEffect(() => {
-    const fetchJourneyPhotos = async () => {
-      try {
-        const res = await fetch('/api/journey');
-        const data = await res.json();
-        if (data.success && data.photos) {
-          setJourneyPhotos(data.photos);
-        }
-      } catch (err) {
-        console.error('Failed to fetch journey photos', err);
+  const fetchJourneyPhotos = async () => {
+    try {
+      const res = await fetch(`/api/journey?t=${Date.now()}`, { cache: 'no-store' });
+      const data = await res.json();
+      if (data.success && data.photos) {
+        setJourneyPhotos(data.photos);
       }
-    };
+    } catch (err) {
+      console.error('Failed to fetch journey photos', err);
+    }
+  };
+
+  useEffect(() => {
     fetchJourneyPhotos();
   }, []);
+
+  useEffect(() => {
+    if (isGlobeOpen) {
+      fetchJourneyPhotos();
+    }
+  }, [isGlobeOpen]);
 
   // Fetch Section 5 Cloudinary Memories
   useEffect(() => {
     const fetchMemories = async () => {
       try {
-        const res = await fetch('/api/memories');
+        const res = await fetch(`/api/memories?t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         if (data.success) {
           setMemories(data.memories);

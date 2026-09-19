@@ -25,7 +25,7 @@ export default function AdminAuthModal({ isOpen, onClose }) {
         localStorage.setItem('admin_authenticated', 'true');
       }
       setTimeout(() => {
-        router.push('/admin/goal');
+        router.push('/admin');
         onClose();
         setPassword('');
         setLoading(false);

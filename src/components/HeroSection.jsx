@@ -6,7 +6,7 @@ export default function HeroSection({ heroRef, parallaxOffset, onBeginJourney, o
   return (
     <main className="hero-card-fullscreen" ref={heroRef}>
       {/* Menu button inside hero header actions (Top-Right) */}
-      <div className="hero-header-actions">
+      {/* <div className="hero-header-actions">
         <button
           className="hamburger-btn-moved"
           aria-label="Admin Menu"
@@ -18,7 +18,7 @@ export default function HeroSection({ heroRef, parallaxOffset, onBeginJourney, o
             <line x1="4" y1="17" x2="20" y2="17"></line>
           </svg>
         </button>
-      </div>
+      </div> */}
 
       {/* Center Content Layer with Parallax depth */}
       <div
