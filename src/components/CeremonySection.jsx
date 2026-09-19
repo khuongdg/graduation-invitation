@@ -51,7 +51,7 @@ export default function CeremonySection({ onOpenModal }) {
       </p>
 
       <button className="btn-confirm-attendance" onClick={onOpenModal}>
-        <span>Confirm Attendance</span>
+        <span>Xác nhận tham dự</span>
         <div className="pill-arrow-circle" style={{ background: 'rgba(255,255,255,0.25)' }}>➔</div>
       </button>
     </section>

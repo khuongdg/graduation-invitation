@@ -37,10 +37,13 @@ export default function JourneySection({ section2Ref, onOpenGlobeModal, onScroll
 
         <div className="journey-description">
           <p>
-            Từ một cậu sinh viên còn nhiều bỡ ngỡ, mình đã trải qua những năm tháng thanh xuân tại TDTU. Mình đã có cơ hội được gặp những người bạn mới, mình luôn trân trọng những người bạn ở bên cạnh dù hoản cảnh thế nào. Cũng cảm ơn những người bạn dù có khoảng thời gian đồng hành cùng nhau ngắn nhưng tất cả đều là những hồi ức tuổi trẻ được mình ghi nhớ mãi.
+            Từ một tân sinh viên còn nhiều bỡ ngỡ, mình đã trải qua những năm tháng thanh xuân tại TDTU. Mình đã có cơ hội được gặp những người bạn mới, mình luôn trân trọng những "người thuơng" đã ở bên cạnh dù hoản cảnh thế nào. 
           </p>
           <p>
-            Biết ơn cha mẹ, gia đình những người đã nuôi dưỡng con từ bé cho đến ngày hôm nay, đã dạy những bài học đầu đời cho đến khi tiếp bước cho con có những bài học tại TDTU. Cảm ơn thầy cô đã hướng dẫn, đồng hành suốt những năm tháng tại trường.
+            Cảm ơn thầy cô đã hướng dẫn, đồng hành suốt những năm tháng tại trường. Cảm ơn những người bạn dù có khoảng thời gian đồng hành cùng nhau ngắn nhưng tất cả đều là những hồi ức tuổi trẻ được mình ghi nhớ mãi.         
+          </p>
+          <p>
+            Biết ơn cha mẹ, gia đình những người đã nuôi dưỡng con từ bé cho đến ngày hôm nay, đã dạy những bài học đầu đời cho đến khi tiếp bước cho con có những bài học tại TDTU.
           </p>
         </div>
 

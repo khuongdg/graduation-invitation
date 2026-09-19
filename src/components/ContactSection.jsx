@@ -24,6 +24,7 @@ export default function ContactSection() {
               <div className="contact-label">Số điện thoại / Zalo</div>
               <div className="contact-value">0945 629 869</div>
             </div>
+            <span className="contact-arrow">➔</span>
           </a>
 
           <a

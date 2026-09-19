@@ -18,10 +18,10 @@ export default function RsvpModal({
 
         {submitState !== 'success' ? (
           <>
-            <h3 className="modal-form-title">Confirm Attendance</h3>
+            <h3 className="modal-form-title">Xác nhận tham dự</h3>
             <form onSubmit={onSubmit}>
               <div className="glass-input-group">
-                <label className="glass-input-label">Full Name</label>
+                <label className="glass-input-label">Họ và tên</label>
                 <input
                   name="name"
                   type="text"
@@ -34,7 +34,7 @@ export default function RsvpModal({
               </div>
 
               <div className="glass-input-group">
-                <label className="glass-input-label">Phone Number</label>
+                <label className="glass-input-label">Số điện thoại</label>
                 <input
                   name="phone"
                   type="tel"
