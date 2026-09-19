@@ -6,10 +6,8 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
   const containerRef = useRef(null);
   const isDraggingRef = useRef(false);
   const startXRef = useRef(0);
-  const startYRef = useRef(0);
   const scrollLeftRef = useRef(0);
   const isHoveredRef = useRef(false);
-  const isHorizontalSwipeRef = useRef(null);
   const animFrameRef = useRef(null);
   const moveDistRef = useRef(0);
   const touchTimerRef = useRef(null);
@@ -54,7 +52,6 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
         const setWidth = totalWidth / 3;
 
         if (setWidth > 0 && !isNaN(container.scrollLeft)) {
-          // Infinite continuous 1-way loop (never hits end point)
           if (container.scrollLeft >= setWidth * 2) {
             container.scrollLeft -= setWidth;
           } else if (container.scrollLeft <= 0) {
@@ -74,84 +71,23 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     };
   }, [direction, safeMemories]);
 
-  // Non-passive Touch Listener for Mobile Devices (Infinite 1:1 Smooth Touch Drag)
-  useEffect(() => {
+  // Handle native scroll wrap-around (works for both native touch swipe and auto-scroll)
+  const handleScroll = () => {
     const container = containerRef.current;
     if (!container) return;
+    const totalWidth = container.scrollWidth;
+    const setWidth = totalWidth / 3;
 
-    const onTouchStart = (e) => {
-      if (!e.touches || e.touches.length !== 1) return;
-      isDraggingRef.current = true;
-      moveDistRef.current = 0;
-      isHorizontalSwipeRef.current = null;
-      startXRef.current = e.touches[0].clientX;
-      startYRef.current = e.touches[0].clientY;
-      scrollLeftRef.current = container.scrollLeft;
-
-      if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
-    };
-
-    const onTouchMove = (e) => {
-      if (!isDraggingRef.current || !e.touches || e.touches.length !== 1) return;
-
-      const currentX = e.touches[0].clientX;
-      const currentY = e.touches[0].clientY;
-      const deltaX = currentX - startXRef.current;
-      const deltaY = currentY - startYRef.current;
-
-      if (isHorizontalSwipeRef.current === null) {
-        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 4) {
-          isHorizontalSwipeRef.current = true;
-        } else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 4) {
-          isHorizontalSwipeRef.current = false;
-        }
+    if (setWidth > 0 && !isNaN(container.scrollLeft)) {
+      if (container.scrollLeft >= setWidth * 2) {
+        container.scrollLeft -= setWidth;
+      } else if (container.scrollLeft <= 0) {
+        container.scrollLeft += setWidth;
       }
+    }
+  };
 
-      if (isHorizontalSwipeRef.current === true) {
-        if (e.cancelable) e.preventDefault();
-        moveDistRef.current += Math.abs(deltaX);
-        container.scrollLeft = scrollLeftRef.current - deltaX;
-
-        const totalWidth = container.scrollWidth;
-        const setWidth = totalWidth / 3;
-        if (setWidth > 0 && !isNaN(container.scrollLeft)) {
-          // Infinite continuous wrap around during touch drag
-          if (container.scrollLeft >= setWidth * 2) {
-            container.scrollLeft -= setWidth;
-            startXRef.current = currentX;
-            scrollLeftRef.current = container.scrollLeft;
-          } else if (container.scrollLeft <= 0) {
-            container.scrollLeft += setWidth;
-            startXRef.current = currentX;
-            scrollLeftRef.current = container.scrollLeft;
-          }
-        }
-      }
-    };
-
-    const onTouchEnd = () => {
-      isDraggingRef.current = false;
-      isHorizontalSwipeRef.current = null;
-      if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
-      touchTimerRef.current = setTimeout(() => {
-        isHoveredRef.current = false;
-      }, 400);
-    };
-
-    container.addEventListener('touchstart', onTouchStart, { passive: true });
-    container.addEventListener('touchmove', onTouchMove, { passive: false });
-    container.addEventListener('touchend', onTouchEnd, { passive: true });
-    container.addEventListener('touchcancel', onTouchEnd, { passive: true });
-
-    return () => {
-      container.removeEventListener('touchstart', onTouchStart);
-      container.removeEventListener('touchmove', onTouchMove);
-      container.removeEventListener('touchend', onTouchEnd);
-      container.removeEventListener('touchcancel', onTouchEnd);
-    };
-  }, []);
-
-  // Mouse Drag Handlers (Desktop Infinite Drag)
+  // Mouse Drag Handlers (Desktop)
   const handleMouseDown = (e) => {
     const container = containerRef.current;
     if (!container) return;
@@ -186,20 +122,32 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     const walk = (x - startXRef.current) * 1.5;
     moveDistRef.current += Math.abs(walk);
     container.scrollLeft = scrollLeftRef.current - walk;
+  };
 
-    const totalWidth = container.scrollWidth;
-    const setWidth = totalWidth / 3;
-    if (setWidth > 0 && !isNaN(container.scrollLeft)) {
-      if (container.scrollLeft >= setWidth * 2) {
-        container.scrollLeft -= setWidth;
-        startXRef.current = e.pageX - container.offsetLeft;
-        scrollLeftRef.current = container.scrollLeft;
-      } else if (container.scrollLeft <= 0) {
-        container.scrollLeft += setWidth;
-        startXRef.current = e.pageX - container.offsetLeft;
-        scrollLeftRef.current = container.scrollLeft;
-      }
+  // Touch Handlers (Mobile)
+  const handleTouchStart = (e) => {
+    isDraggingRef.current = true;
+    isHoveredRef.current = true;
+    if (e.touches && e.touches[0]) {
+      startXRef.current = e.touches[0].clientX;
     }
+    moveDistRef.current = 0;
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches && e.touches[0]) {
+      const dist = Math.abs(e.touches[0].clientX - startXRef.current);
+      moveDistRef.current = Math.max(moveDistRef.current, dist);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    isDraggingRef.current = false;
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    touchTimerRef.current = setTimeout(() => {
+      isHoveredRef.current = false;
+    }, 1500);
   };
 
   const handleMouseEnter = (e) => {
@@ -254,11 +202,16 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
       <div
         ref={containerRef}
         className="film-roll-track"
+        onScroll={handleScroll}
         onMouseDown={handleMouseDown}
         onMouseLeave={handleMouseLeave}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
         onMouseEnter={handleMouseEnter}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
       >
         <div className="film-strip">
           {repeatedMemories.map((m, idx) => (

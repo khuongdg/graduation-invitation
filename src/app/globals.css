@@ -1418,7 +1418,7 @@ body {
   scrollbar-width: none;
   cursor: grab;
   padding: 0 10px;
-  touch-action: pan-y;
+  touch-action: auto;
   -webkit-overflow-scrolling: touch;
 }
 
