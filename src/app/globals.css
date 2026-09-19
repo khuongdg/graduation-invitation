@@ -1418,6 +1418,8 @@ body {
   scrollbar-width: none;
   cursor: grab;
   padding: 0 10px;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 .film-roll-track::-webkit-scrollbar {

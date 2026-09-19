@@ -1,8 +1,13 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "My Special Day! - Graduation Invitation",
-  description: "A beautiful, magical anime-style graduation invitation section featuring a cute chibi graduate girl under a Shinkai-inspired sky.",
+  title: "My Special Day! - Graduation Invitation 🎓",
+  description: "Thiệp mời tham dự Lễ Tốt Nghiệp Đại học Tôn Đức Thắng",
+  icons: {
+    icon: '/assets/graduation-symbol.png',
+    shortcut: '/assets/graduation-symbol.png',
+    apple: '/assets/graduation-symbol.png',
+  },
 };
 
 export default function RootLayout({ children }) {
