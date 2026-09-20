@@ -1224,6 +1224,39 @@ body {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+/* Photo Detail Lightbox Modal (Ultra Thin Padding Border) */
+.photo-lightbox-modal {
+  padding: 14px !important;
+  max-width: 840px !important;
+  width: 94% !important;
+  border-radius: 22px !important;
+}
+
+.photo-lightbox-modal .modal-close-icon {
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+  .photo-lightbox-modal {
+    padding: 8px !important;
+    border-radius: 16px !important;
+    width: 96% !important;
+  }
+  
+  .photo-lightbox-modal .modal-close-icon {
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+}
+
 .modal-close-icon {
   position: absolute;
   top: 20px;

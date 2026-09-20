@@ -1412,28 +1412,28 @@ export default function AdminGoalPage() {
       {/* Photo Lightbox Popup Modal for Admin */}
       {selectedPhoto && (
         <div className="glass-modal-overlay open" onClick={() => setSelectedPhoto(null)} style={{ zIndex: 10000 }}>
-          <div className="glass-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '680px', width: '92%' }}>
+          <div className="glass-modal-content photo-lightbox-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close-icon" onClick={() => setSelectedPhoto(null)}>✕</button>
             <div style={{
               width: '100%',
-              maxHeight: '65vh',
+              maxHeight: '78vh',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: '16px',
+              borderRadius: '14px',
               overflow: 'hidden',
-              background: 'rgba(0, 0, 0, 0.25)'
+              background: 'rgba(0, 0, 0, 0.4)'
             }}>
               <img
                 src={selectedPhoto.imageUrl || selectedPhoto.image}
                 alt={selectedPhoto.name || selectedPhoto.title || 'Kỷ niệm'}
                 style={{
                   maxWidth: '100%',
-                  maxHeight: '65vh',
+                  maxHeight: '78vh',
                   width: 'auto',
                   height: 'auto',
                   objectFit: 'contain',
-                  borderRadius: '16px',
+                  borderRadius: '14px',
                   display: 'block'
                 }}
               />
