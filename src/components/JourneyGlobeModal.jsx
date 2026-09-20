@@ -174,8 +174,16 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
     }
   }, [photos]);
 
+  const handleRandomizeAngle = () => {
+    rotYRef.current = Math.random() * Math.PI * 2;
+    rotXRef.current = (Math.random() - 0.5) * 1.2;
+    velocityRef.current = { x: 0, y: 0 };
+    setZoomLevel(1);
+  };
+
   useEffect(() => {
     if (isOpen) {
+      handleRandomizeAngle();
       fetch(`/api/journey?t=${Date.now()}`, { cache: 'no-store' })
         .then((res) => res.json())
         .then((data) => {
@@ -689,11 +697,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
           </button>
 
           <button
-            onClick={() => {
-              rotYRef.current = 0;
-              rotXRef.current = 0.2;
-              setZoomLevel(1);
-            }}
+            onClick={handleRandomizeAngle}
             style={{
               padding: isMobile ? '8px 14px' : '10px 18px',
               borderRadius: '20px',
@@ -705,6 +709,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
               cursor: 'pointer',
               transition: 'all 0.2s ease'
             }}
+            title="Đổi góc quay ngẫu nhiên mới"
           >
             🔄 Reset góc quay
           </button>
