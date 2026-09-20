@@ -1230,7 +1230,7 @@ export default function AdminGoalPage() {
                       boxShadow: '0 4px 15px rgba(0, 240, 255, 0.4)'
                     }}
                   >
-                    {mSubmitting ? 'Đang tải lên Cloudinary...' : '🚀 Thêm vào Section 5'}
+                    {mSubmitting ? 'Đang tải lên...' : '🚀 Thêm vào Section 5'}
                   </button>
                 </form>
               </div>

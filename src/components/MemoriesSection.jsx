@@ -97,7 +97,7 @@ export default function MemoriesSection({
                 )}
 
                 <button type="submit" className="glass-submit-btn" disabled={uploadState === 'loading'}>
-                  {uploadState === 'loading' ? 'Đang tải lên Cloudinary...' : 'Gửi Ảnh Lên Cuộn Phim 🚀'}
+                  {uploadState === 'loading' ? 'Đang tải lên...' : 'Gửi Ảnh Lên Cuộn Phim 🚀'}
                 </button>
               </form>
             </>

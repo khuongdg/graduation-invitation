@@ -37,7 +37,7 @@ export default function MapSection() {
       >
         <img src="/assets/tdtu_mapv1.png" alt="Sơ đồ tổng quát TDTU" className="map-image" />
         <div className="map-zoom-hint-badge">
-          🔍 Phóng to
+          🔍 Chỉ đường
         </div>
       </div>
 

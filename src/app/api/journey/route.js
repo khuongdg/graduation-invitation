@@ -19,28 +19,35 @@ const defaultJourneyPhotos = [
 
 const getFilePath = () => path.join(process.cwd(), 'public', 'journey_photos.json');
 
+let inMemoryJourneyPhotos = null;
+
 function readJourneyPhotos() {
   try {
     const filePath = getFilePath();
     if (fs.existsSync(filePath)) {
       const fileData = fs.readFileSync(filePath, 'utf8');
       const data = JSON.parse(fileData);
-      if (Array.isArray(data)) {
+      if (Array.isArray(data) && data.length > 0) {
+        inMemoryJourneyPhotos = data;
         return data;
       }
     }
   } catch (err) {
     console.error('Error reading journey_photos.json:', err);
   }
+  if (inMemoryJourneyPhotos && Array.isArray(inMemoryJourneyPhotos)) {
+    return inMemoryJourneyPhotos;
+  }
   return defaultJourneyPhotos;
 }
 
 function saveJourneyPhotos(photos) {
+  inMemoryJourneyPhotos = photos;
   try {
     const filePath = getFilePath();
     fs.writeFileSync(filePath, JSON.stringify(photos, null, 2), 'utf8');
   } catch (err) {
-    console.error('Error writing journey_photos.json:', err);
+    console.warn('Could not write to journey_photos.json (read-only filesystem):', err);
   }
 }
 
@@ -84,23 +91,46 @@ export async function POST(request) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
         const base64Image = buffer.toString('base64');
-        
-        // Upload to Cloudinary if configured, otherwise save locally in public/journey_uploads
-        if (process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_CLOUD_NAME) {
-          const uploadResponse = await cloudinary.uploader.upload(
-            `data:${file.type};base64,${base64Image}`,
-            { folder: 'journey_photos' }
-          );
-          imageUrl = uploadResponse.secure_url;
-        } else {
-          const uploadsDir = path.join(process.cwd(), 'public', 'journey_uploads');
-          if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true });
+        const mimeType = file.type || 'image/jpeg';
+        let uploaded = false;
+
+        // Tier 1: Try Cloudinary upload
+        if (process.env.CLOUDINARY_API_KEY || process.env.CLOUDINARY_CLOUD_NAME) {
+          try {
+            const uploadResponse = await cloudinary.uploader.upload(
+              `data:${mimeType};base64,${base64Image}`,
+              { folder: 'journey_photos' }
+            );
+            if (uploadResponse && uploadResponse.secure_url) {
+              imageUrl = uploadResponse.secure_url;
+              uploaded = true;
+            }
+          } catch (cloudErr) {
+            console.warn('Cloudinary upload warning (falling back to local/base64):', cloudErr);
           }
-          const fileName = `journey_${Date.now()}_${i}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-          const filePath = path.join(uploadsDir, fileName);
-          fs.writeFileSync(filePath, buffer);
-          imageUrl = `/journey_uploads/${fileName}`;
+        }
+
+        // Tier 2: Try Local Filesystem save if Cloudinary didn't upload
+        if (!uploaded) {
+          try {
+            const uploadsDir = path.join(process.cwd(), 'public', 'journey_uploads');
+            if (!fs.existsSync(uploadsDir)) {
+              fs.mkdirSync(uploadsDir, { recursive: true });
+            }
+            const safeName = (file.name || 'image.jpg').replace(/[^a-zA-Z0-9.-]/g, '_');
+            const fileName = `journey_${Date.now()}_${i}_${safeName}`;
+            const filePath = path.join(uploadsDir, fileName);
+            fs.writeFileSync(filePath, buffer);
+            imageUrl = `/journey_uploads/${fileName}`;
+            uploaded = true;
+          } catch (localErr) {
+            console.warn('Local save warning (falling back to Data URI):', localErr);
+          }
+        }
+
+        // Tier 3: Fallback to Data URI if both Cloudinary & disk writes failed
+        if (!uploaded) {
+          imageUrl = `data:${mimeType};base64,${base64Image}`;
         }
       } else if (typeof formData.get('imageUrl') === 'string') {
         imageUrl = formData.get('imageUrl');
