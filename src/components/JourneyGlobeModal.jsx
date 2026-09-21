@@ -1,14 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { formatImageUrl } from '@/utils/image';
 
-const defaultGlobePhotos = [
-  { id: 'g1', title: "Khuôn viên TDTU", caption: "Trường Đại học Tôn Đức Thắng", imageUrl: "/default_memories/memory_grad_solo.png" },
-  { id: 'g2', title: "Nhóm bạn thân", caption: "Kỷ niệm ngày chụp ảnh tốt nghiệp", imageUrl: "/default_memories/memory_grad_chibi.png" },
-  { id: 'g3', title: "Lễ Tốt Nghiệp", caption: "Tung bay những ước mơ cử nhân", imageUrl: "/default_memories/memory_grad_cap.png" },
-  { id: 'g4', title: "Thầy cô & Bạn bè", caption: "Trân trọng từng khoảnh khắc thanh xuân", imageUrl: "/default_memories/memory_grad_group.png" },
-  { id: 'g5', title: "Hành trình mới", caption: "Sẵn sàng vươn xa cùng tri thức", imageUrl: "/assets/test.JPG" }
-];
+const defaultGlobePhotos = [];
 
 // Galaxy Starfield HTML5 Canvas Component (Mobile Optimized)
 function GalaxyStarfield({ isMobile }) {
@@ -202,14 +197,16 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
   const sourcePhotos = activePhotos;
   
   let globeItems = [...sourcePhotos];
-  if (globeItems.length < 10) {
+  if (globeItems.length > 0 && globeItems.length < 10) {
     let copyIndex = 0;
     while (globeItems.length < 12) {
       const src = sourcePhotos[copyIndex % sourcePhotos.length];
-      globeItems.push({
-        ...src,
-        id: `dup-${globeItems.length}-${src.id || copyIndex}`
-      });
+      if (src) {
+        globeItems.push({
+          ...src,
+          id: `dup-${globeItems.length}-${src.id || copyIndex}`
+        });
+      }
       copyIndex++;
     }
   }
@@ -469,17 +466,23 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '14px' }}>
           <div style={{
-            width: isMobile ? '34px' : '44px',
-            height: isMobile ? '34px' : '44px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #00F0FF, #7000FF)',
+            width: isMobile ? '38px' : '46px',
+            height: isMobile ? '38px' : '46px',
+            borderRadius: '50%',
+            background: '#FFFFFF',
+            border: '1.5px solid rgba(255, 255, 255, 0.9)',
+            boxShadow: '0 0 20px rgba(255, 255, 255, 0.7), 0 0 30px rgba(0, 240, 255, 0.4)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: isMobile ? '1.1rem' : '1.4rem',
-            boxShadow: '0 0 20px rgba(0, 240, 255, 0.4)'
+            padding: '6px',
+            flexShrink: 0
           }}>
-            🌐
+            <img
+              src="/assets/logoTDTU.png"
+              alt="TDTU Logo"
+              style={{ width: '82%', height: '82%', objectFit: 'contain' }}
+            />
           </div>
           <div>
             <h2 style={{ margin: 0, fontSize: isMobile ? '1.05rem' : '1.35rem', fontWeight: 800, color: '#00F0FF', letterSpacing: '-0.02em' }}>
@@ -550,18 +553,31 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
           zIndex: 5
         }}
       >
-        {/* Glowing 3D Central Core Sphere */}
+        {/* Glowing 3D Central White Core Sphere with TDTU Logo */}
         <div style={{
           position: 'absolute',
           width: `${coreDiameter}px`,
           height: `${coreDiameter}px`,
           borderRadius: '50%',
-          background: 'radial-gradient(circle at 35% 35%, rgba(0, 240, 255, 0.45), rgba(112, 0, 255, 0.3) 60%, rgba(6, 7, 17, 0.85) 100%)',
-          boxShadow: '0 0 80px rgba(0, 240, 255, 0.45), inset 0 0 50px rgba(0, 240, 255, 0.5)',
-          border: '1px solid rgba(0, 240, 255, 0.45)',
+          background: 'radial-gradient(circle at 35% 35%, #FFFFFF 0%, #F1F5F9 50%, #E2E8F0 100%)',
+          boxShadow: '0 0 90px rgba(255, 255, 255, 0.85), inset 0 0 40px rgba(0, 240, 255, 0.35), 0 0 50px rgba(0, 240, 255, 0.5)',
+          border: '2px solid rgba(255, 255, 255, 0.95)',
           pointerEvents: 'none',
-          animation: 'globePulse 4s infinite alternate ease-in-out'
+          animation: 'globePulse 4s infinite alternate ease-in-out',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}>
+          <img
+            src="/assets/logoTDTU.png"
+            alt="TDTU Logo Core"
+            style={{
+              width: '68%',
+              height: '68%',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 0 8px rgba(0, 240, 255, 0.6))'
+            }}
+          />
           <div style={{
             position: 'absolute',
             inset: '-24px',
@@ -616,7 +632,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
               position: 'relative'
             }}>
               <img
-                src={photo.imageUrl}
+                src={formatImageUrl(photo.imageUrl || photo.image)}
                 alt={photo.title || 'Kỷ niệm'}
                 style={{
                   width: '100%',
@@ -775,7 +791,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
               background: 'rgba(0, 0, 0, 0.4)'
             }}>
               <img
-                src={selectedPhoto.imageUrl || selectedPhoto.image}
+                src={formatImageUrl(selectedPhoto.imageUrl || selectedPhoto.image)}
                 alt={selectedPhoto.title || selectedPhoto.name || 'Kỷ niệm'}
                 style={{
                   maxWidth: '100%',

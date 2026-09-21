@@ -54,40 +54,5 @@
     "caption": "",
     "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789564745/journey_photos/fi5oc9uukojenymxom2v.png",
     "isFeatured": true
-  },
-  {
-    "id": 1789563653165,
-    "title": "",
-    "caption": "",
-    "imageUrl": "https://res.cloudinary.com/dkll8ms0n/image/upload/v1789563652/journey_photos/fbp2ykouesfbhptwbq8m.jpg",
-    "isFeatured": false
-  },
-  {
-    "id": 1,
-    "title": "Khuôn viên TDTU",
-    "imageUrl": "/default_memories/memory_grad_solo.png",
-    "caption": "Trường Đại học Tôn Đức Thắng",
-    "isFeatured": false
-  },
-  {
-    "id": 2,
-    "title": "Nhóm bạn thân",
-    "imageUrl": "/default_memories/memory_grad_chibi.png",
-    "caption": "Kỷ niệm ngày chụp ảnh",
-    "isFeatured": false
-  },
-  {
-    "id": 3,
-    "title": "Lễ Tốt Nghiệp",
-    "imageUrl": "/default_memories/memory_grad_cap.png",
-    "caption": "Tung bay những ước mơ",
-    "isFeatured": true
-  },
-  {
-    "id": 4,
-    "title": "Thầy cô & Bạn bè",
-    "imageUrl": "/default_memories/memory_grad_group.png",
-    "caption": "Trân trọng từng khoảnh khắc",
-    "isFeatured": true
   }
 ]

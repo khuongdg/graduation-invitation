@@ -1,17 +1,10 @@
 'use client';
 
 import React from 'react';
-
-const defaultFallbackPhotos = [
-  { id: 'def-1', title: "Khuôn viên TDTU", imageUrl: "/default_memories/memory_grad_solo.png" },
-  { id: 'def-2', title: "Nhóm bạn thân", imageUrl: "/default_memories/memory_grad_chibi.png" },
-  { id: 'def-3', title: "Lễ Tốt Nghiệp", imageUrl: "/default_memories/memory_grad_cap.png" },
-  { id: 'def-4', title: "Thầy cô & Bạn bè", imageUrl: "/default_memories/memory_grad_group.png" },
-  { id: 'def-5', title: "Hành trình mới", imageUrl: "/assets/test.JPG" }
-];
+import { formatImageUrl } from '@/utils/image';
 
 export default function JourneySection({ section2Ref, onOpenGlobeModal, onScrollToMemories, photos = [], onPhotoClick }) {
-  const safePhotos = (Array.isArray(photos) && photos.length > 0) ? photos : defaultFallbackPhotos;
+  const safePhotos = Array.isArray(photos) ? photos : [];
 
   // Filter ONLY starred/featured photos selected in Admin
   const featuredPhotos = safePhotos.filter(p => p.isFeatured);
@@ -54,49 +47,77 @@ export default function JourneySection({ section2Ref, onOpenGlobeModal, onScroll
       </div>
 
       {/* Photo Gallery Grid Collage */}
-      <div
-        className="journey-gallery-grid"
-        style={{
-          gridTemplateColumns: subPhotos.length === 0 ? '1fr' : undefined
-        }}
-      >
-        {mainPhoto && (
+      {displayPhotos.length === 0 ? (
+        <div className="journey-gallery-grid" style={{ gridTemplateColumns: '1fr' }}>
           <div
             className="gallery-photo-main"
-            onClick={() => onPhotoClick && onPhotoClick(mainPhoto)}
             style={{
-              minHeight: subPhotos.length === 0 ? '340px' : '280px',
-              cursor: onPhotoClick ? 'pointer' : 'default'
+              minHeight: '260px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px dashed rgba(0, 240, 255, 0.3)',
+              borderRadius: '16px',
+              padding: '24px',
+              textAlign: 'center'
             }}
           >
-            <img src={mainPhoto.imageUrl} alt={mainPhoto.title || 'TDTU Campus'} />
+            <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>📸</div>
+            <div style={{ fontWeight: '700', fontSize: '1rem', color: '#00F0FF' }}>
+              Chưa có ảnh hành trình nào
+            </div>
+            <div style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.7)', marginTop: '4px' }}>
+              Tải ảnh lên trong trang Admin để hiển thị tại đây! ✨
+            </div>
           </div>
-        )}
+        </div>
+      ) : (
+        <div
+          className="journey-gallery-grid"
+          style={{
+            gridTemplateColumns: subPhotos.length === 0 ? '1fr' : undefined
+          }}
+        >
+          {mainPhoto && (
+            <div
+              className="gallery-photo-main"
+              onClick={() => onPhotoClick && onPhotoClick(mainPhoto)}
+              style={{
+                minHeight: subPhotos.length === 0 ? '340px' : '280px',
+                cursor: onPhotoClick ? 'pointer' : 'default'
+              }}
+            >
+              <img src={formatImageUrl(mainPhoto.imageUrl)} alt={mainPhoto.title || 'TDTU Campus'} />
+            </div>
+          )}
 
-        {subPhotos.length > 0 && (
-          <div
-            className="gallery-sub-grid"
-            style={{
-              gridTemplateColumns: subPhotos.length === 1 ? '1fr' : '1fr 1fr'
-            }}
-          >
-            {subPhotos.map((p, idx) => (
-              <div
-                className="gallery-photo-sub"
-                key={p.id || idx}
-                onClick={() => onPhotoClick && onPhotoClick(p)}
-                style={{
-                  height: subPhotos.length <= 2 ? '100%' : '135px',
-                  minHeight: '135px',
-                  cursor: onPhotoClick ? 'pointer' : 'default'
-                }}
-              >
-                <img src={p.imageUrl} alt={p.title || 'Kỷ niệm'} />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+          {subPhotos.length > 0 && (
+            <div
+              className="gallery-sub-grid"
+              style={{
+                gridTemplateColumns: subPhotos.length === 1 ? '1fr' : '1fr 1fr'
+              }}
+            >
+              {subPhotos.map((p, idx) => (
+                <div
+                  className="gallery-photo-sub"
+                  key={p.id || idx}
+                  onClick={() => onPhotoClick && onPhotoClick(p)}
+                  style={{
+                    height: subPhotos.length <= 2 ? '100%' : '135px',
+                    minHeight: '135px',
+                    cursor: onPhotoClick ? 'pointer' : 'default'
+                  }}
+                >
+                  <img src={formatImageUrl(p.imageUrl)} alt={p.title || 'Kỷ niệm'} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }

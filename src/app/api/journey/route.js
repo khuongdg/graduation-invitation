@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
+import { formatImageUrl } from '@/utils/image';
 
 // Configure Cloudinary using environment variables with fallbacks
 cloudinary.config({
@@ -10,13 +11,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET || 'XzibdHMYDNJA1f4jqlC8y9js0ys',
 });
 
-const defaultJourneyPhotos = [
-  { id: 1, title: "Khuôn viên TDTU", imageUrl: "/default_memories/memory_grad_solo.png", caption: "Trường Đại học Tôn Đức Thắng", isFeatured: true },
-  { id: 2, title: "Nhóm bạn thân", imageUrl: "/default_memories/memory_grad_chibi.png", caption: "Kỷ niệm ngày chụp ảnh", isFeatured: true },
-  { id: 3, title: "Lễ Tốt Nghiệp", imageUrl: "/default_memories/memory_grad_cap.png", caption: "Tung bay những ước mơ", isFeatured: true },
-  { id: 4, title: "Thầy cô & Bạn bè", imageUrl: "/default_memories/memory_grad_group.png", caption: "Trân trọng từng khoảnh khắc", isFeatured: true },
-  { id: 5, title: "Hành trình mới", imageUrl: "/assets/test.JPG", caption: "Sẵn sàng vươn xa", isFeatured: true }
-];
+const defaultJourneyPhotos = [];
 
 const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbx-GSi_AUvfJEw-VPTAnEsAsac12aaX45IPYhA0kSEP_QfT40J7koeRnGb_YsY662NDyw/exec';
 
@@ -37,7 +32,7 @@ function readLocalJourneyPhotos() {
   } catch (err) {
     console.error('Error reading journey_photos.json:', err);
   }
-  return defaultJourneyPhotos;
+  return [];
 }
 
 function saveLocalJourneyPhotos(photos) {
@@ -54,7 +49,7 @@ function filterUniquePhotos(photosList) {
   if (!Array.isArray(photosList)) return [];
   const seenUrls = new Set();
   return photosList.filter((p) => {
-    const url = p.imageUrl || p.image;
+    const url = formatImageUrl(p.imageUrl || p.image);
     if (!url) return true;
     if (seenUrls.has(url)) return false;
     seenUrls.add(url);
@@ -82,11 +77,12 @@ export async function GET() {
       if (response.ok) {
         const data = await response.json();
         if (data.success && Array.isArray(data.journeyPhotos) && data.journeyPhotos.length > 0) {
-          cloudPhotos = data.journeyPhotos.map((m) => ({
+          // Reverse so newest uploaded photos from Google Sheets appear first!
+          cloudPhotos = [...data.journeyPhotos].reverse().map((m) => ({
             id: m.id || Date.now(),
             title: m.title || m.name || '',
             caption: m.caption || '',
-            imageUrl: m.imageUrl || m.image,
+            imageUrl: formatImageUrl(m.imageUrl || m.image),
             isFeatured: m.isFeatured === true || m.isFeatured === 'true'
           }));
         }
@@ -95,22 +91,55 @@ export async function GET() {
       console.warn('Apps Script GET getJourney warning:', e);
     }
 
-    const combined = filterUniquePhotos([...cloudPhotos, ...localPhotos, ...defaultJourneyPhotos]);
-    if (inMemoryJourneyPhotos && Array.isArray(inMemoryJourneyPhotos)) {
-      const mergedMemory = filterUniquePhotos([...inMemoryJourneyPhotos, ...combined]);
-      return NextResponse.json(
-        { success: true, photos: mergedMemory },
-        { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' } }
-      );
+    let finalPhotos = [];
+
+    if (cloudPhotos.length > 0) {
+      // Create Map keyed by ID so Cloud photos from Google Sheets take precedence
+      const photoMap = new Map();
+      cloudPhotos.forEach((p) => {
+        photoMap.set(String(p.id), p);
+      });
+
+      // Supplement with local photos if not already present
+      localPhotos.forEach((p) => {
+        const key = String(p.id);
+        if (!photoMap.has(key)) {
+          photoMap.set(key, { ...p, imageUrl: formatImageUrl(p.imageUrl) });
+        }
+      });
+
+      finalPhotos = Array.from(photoMap.values());
+    } else {
+      finalPhotos = filterUniquePhotos([
+        ...(inMemoryJourneyPhotos || []),
+        ...localPhotos
+      ]).map((p) => ({ ...p, imageUrl: formatImageUrl(p.imageUrl) }));
     }
 
+    // Enforce max 5 featured photos cap
+    let featCounter = 0;
+    finalPhotos = finalPhotos.map((p) => {
+      if (p.isFeatured) {
+        if (featCounter < 5) {
+          featCounter++;
+          return { ...p, isFeatured: true };
+        } else {
+          return { ...p, isFeatured: false };
+        }
+      }
+      return { ...p, isFeatured: false };
+    });
+
+    // Keep memory cache updated with newest sheet data
+    inMemoryJourneyPhotos = finalPhotos;
+
     return NextResponse.json(
-      { success: true, photos: combined },
+      { success: true, photos: finalPhotos },
       { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' } }
     );
   } catch (error) {
     console.error('Error in /api/journey GET:', error);
-    return NextResponse.json({ success: true, photos: filterUniquePhotos([...readLocalJourneyPhotos(), ...defaultJourneyPhotos]) });
+    return NextResponse.json({ success: true, photos: filterUniquePhotos([...readLocalJourneyPhotos(), ...defaultJourneyPhotos]).map(p => ({ ...p, imageUrl: formatImageUrl(p.imageUrl) })) });
   }
 }
 
@@ -122,15 +151,16 @@ export async function POST(request) {
       const singleFile = formData.get('image');
       if (singleFile) files = [singleFile];
     }
-    const title = formData.get('title') || 'Kỷ niệm TDTU';
-    const caption = formData.get('caption') || 'Hành trình sinh viên';
+    const rawTitle = formData.get('title');
+    const rawCaption = formData.get('caption');
+    const title = rawTitle !== null && rawTitle !== undefined ? rawTitle.trim() : '';
+    const caption = rawCaption !== null && rawCaption !== undefined ? rawCaption.trim() : '';
 
     if (!files || files.length === 0) {
       return NextResponse.json({ success: false, message: 'Chưa có ảnh nào được chọn!' }, { status: 400 });
     }
 
     const currentPhotos = readLocalJourneyPhotos();
-    let featuredCount = currentPhotos.filter(p => p.isFeatured).length;
     const newPhotos = [];
 
     for (let i = 0; i < files.length; i++) {
@@ -177,15 +207,16 @@ export async function POST(request) {
       }
 
       if (imageUrl) {
-        const isFeatured = featuredCount < 5;
-        if (isFeatured) featuredCount++;
+        // Only set as featured if total featured count is under 5
+        const currentlyFeaturedCount = currentPhotos.filter((p) => p.isFeatured).length + newPhotos.filter((p) => p.isFeatured).length;
+        const autoFeature = currentlyFeaturedCount < 5;
 
         const photoObj = {
           id: Date.now() + i,
           title: files.length > 1 && title ? `${title} (${i + 1})` : title,
           caption,
           imageUrl,
-          isFeatured
+          isFeatured: autoFeature
         };
 
         newPhotos.push(photoObj);
@@ -198,7 +229,7 @@ export async function POST(request) {
             title: photoObj.title,
             caption: photoObj.caption,
             image: imageUrl,
-            isFeatured: isFeatured ? 'true' : 'false'
+            isFeatured: autoFeature ? 'true' : 'false'
           });
           await fetch(`${googleScriptUrl}?${params.toString()}`, {
             method: 'GET',
@@ -215,7 +246,20 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Tải ảnh lên thất bại!' }, { status: 400 });
     }
 
-    const updatedPhotos = filterUniquePhotos([...newPhotos, ...currentPhotos]);
+    // Balance featured status so max featured count is strictly 5
+    let featCounter = 0;
+    const updatedPhotos = filterUniquePhotos([...currentPhotos, ...newPhotos]).map((p) => {
+      if (p.isFeatured) {
+        if (featCounter < 5) {
+          featCounter++;
+          return { ...p, isFeatured: true };
+        } else {
+          return { ...p, isFeatured: false };
+        }
+      }
+      return { ...p, isFeatured: false };
+    });
+
     saveLocalJourneyPhotos(updatedPhotos);
 
     return NextResponse.json({

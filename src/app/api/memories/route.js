@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
+import { formatImageUrl } from '@/utils/image';
 
 // Configure Cloudinary using environment variables
 cloudinary.config({
@@ -51,7 +52,7 @@ function filterUniqueMemories(memoriesList) {
   if (!Array.isArray(memoriesList)) return [];
   const seenUrls = new Set();
   return memoriesList.filter((m) => {
-    const url = m.imageUrl || m.image;
+    const url = formatImageUrl(m.imageUrl || m.image);
     if (!url) return true;
     if (seenUrls.has(url)) return false;
     seenUrls.add(url);
@@ -78,14 +79,18 @@ export async function GET() {
     if (response.ok) {
       const data = await response.json();
       if (data.success && data.memories) {
-        userMemories = filterUniqueMemories(data.memories);
+        userMemories = data.memories.map((m) => ({
+          ...m,
+          imageUrl: formatImageUrl(m.imageUrl || m.image)
+        }));
       }
     } else {
       console.error('Apps Script getMemories returned error status:', response.status);
     }
     
     // Combine user uploaded memories with default ones to ensure rolls are rich
-    const combined = filterUniqueMemories([...userMemories, ...defaultMemories]);
+    const formattedDefaults = defaultMemories.map((m) => ({ ...m, imageUrl: formatImageUrl(m.imageUrl) }));
+    const combined = filterUniqueMemories([...userMemories, ...formattedDefaults]);
     return NextResponse.json({ success: true, memories: combined });
   } catch (error) {
     console.error('Error fetching memories from Apps Script:', error);
@@ -102,8 +107,8 @@ export async function POST(request) {
       const singleFile = formData.get('image');
       if (singleFile) files = [singleFile];
     }
-    const name = formData.get('name') || 'Người thương';
-    const caption = formData.get('caption') || 'Chúc mừng tốt nghiệp!';
+    const name = formData.get('name');
+    const caption = formData.get('caption');
 
     if (!files || files.length === 0) {
       return NextResponse.json({ success: false, message: 'Chưa có ảnh nào được gửi!' }, { status: 400 });

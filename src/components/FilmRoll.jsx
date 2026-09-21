@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { formatImageUrl } from '@/utils/image';
 
 export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClick }) {
   const containerRef = useRef(null);
@@ -221,7 +222,7 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
               onClick={() => handlePhotoItemClick(m)}
             >
               <div className="film-photo">
-                <img src={m?.imageUrl || m?.image || '/assets/test.JPG'} alt={m?.name || m?.title || 'Kỷ niệm'} draggable={false} />
+                <img src={formatImageUrl(m?.imageUrl || m?.image || '/assets/test.JPG')} alt={m?.name || m?.title || 'Kỷ niệm'} draggable={false} />
                 <div className="film-photo-info">
                   <span className="film-photo-name">{m?.name || m?.title || 'Kỷ niệm'}</span>
                   <span className="film-photo-caption">{m?.caption || ''}</span>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { formatImageUrl } from '@/utils/image';
 
 export default function AdminGoalPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -842,7 +843,7 @@ export default function AdminGoalPage() {
                             style={{ position: 'relative', height: '210px', width: '100%', overflow: 'hidden', cursor: 'pointer' }}
                           >
                             <img
-                              src={p.imageUrl}
+                              src={formatImageUrl(p.imageUrl || p.image)}
                               alt={p.title || 'Kỷ niệm'}
                               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                             />
@@ -1268,7 +1269,7 @@ export default function AdminGoalPage() {
                             style={{ position: 'relative', height: '210px', width: '100%', overflow: 'hidden', cursor: 'pointer' }}
                           >
                             <img
-                              src={m.imageUrl || m.image}
+                              src={formatImageUrl(m.imageUrl || m.image)}
                               alt={m.name || m.title || 'Kỷ niệm'}
                               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                             />
@@ -1425,7 +1426,7 @@ export default function AdminGoalPage() {
               background: 'rgba(0, 0, 0, 0.4)'
             }}>
               <img
-                src={selectedPhoto.imageUrl || selectedPhoto.image}
+                src={formatImageUrl(selectedPhoto.imageUrl || selectedPhoto.image)}
                 alt={selectedPhoto.name || selectedPhoto.title || 'Kỷ niệm'}
                 style={{
                   maxWidth: '100%',
