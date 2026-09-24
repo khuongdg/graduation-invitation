@@ -196,20 +196,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
     : ((Array.isArray(photos) && photos.length > 0) ? photos : defaultGlobePhotos);
   const sourcePhotos = activePhotos;
   
-  let globeItems = [...sourcePhotos];
-  if (globeItems.length > 0 && globeItems.length < 10) {
-    let copyIndex = 0;
-    while (globeItems.length < 12) {
-      const src = sourcePhotos[copyIndex % sourcePhotos.length];
-      if (src) {
-        globeItems.push({
-          ...src,
-          id: `dup-${globeItems.length}-${src.id || copyIndex}`
-        });
-      }
-      copyIndex++;
-    }
-  }
+  const globeItems = [...sourcePhotos];
 
   // Mobile responsive dimensions tracking
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1000);

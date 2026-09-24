@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
 import { formatImageUrl } from '@/utils/image';
 
@@ -11,114 +9,47 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET || 'XzibdHMYDNJA1f4jqlC8y9js0ys',
 });
 
-const defaultJourneyPhotos = [];
-
 const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbx-GSi_AUvfJEw-VPTAnEsAsac12aaX45IPYhA0kSEP_QfT40J7koeRnGb_YsY662NDyw/exec';
-
-const getFilePath = () => path.join(process.cwd(), 'public', 'journey_photos.json');
-
-let inMemoryJourneyPhotos = null;
-
-function readLocalJourneyPhotos() {
-  try {
-    const filePath = getFilePath();
-    if (fs.existsSync(filePath)) {
-      const fileData = fs.readFileSync(filePath, 'utf8');
-      const data = JSON.parse(fileData);
-      if (Array.isArray(data) && data.length > 0) {
-        return data;
-      }
-    }
-  } catch (err) {
-    console.error('Error reading journey_photos.json:', err);
-  }
-  return [];
-}
-
-function saveLocalJourneyPhotos(photos) {
-  inMemoryJourneyPhotos = photos;
-  try {
-    const filePath = getFilePath();
-    fs.writeFileSync(filePath, JSON.stringify(photos, null, 2), 'utf8');
-  } catch (err) {
-    console.warn('Could not write to journey_photos.json (read-only filesystem):', err);
-  }
-}
-
-function filterUniquePhotos(photosList) {
-  if (!Array.isArray(photosList)) return [];
-  const seenUrls = new Set();
-  return photosList.filter((p) => {
-    const url = formatImageUrl(p.imageUrl || p.image);
-    if (!url) return true;
-    if (seenUrls.has(url)) return false;
-    seenUrls.add(url);
-    return true;
-  });
-}
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+async function fetchJourneyPhotosFromSheet() {
+  try {
+    const params = new URLSearchParams({ action: 'getJourney', t: Date.now().toString() });
+    const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      redirect: 'follow',
+      next: { revalidate: 0 }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && Array.isArray(data.journeyPhotos)) {
+        // Reverse so newest uploaded photos from Google Sheets appear first!
+        const photos = [...data.journeyPhotos].reverse().map((m) => ({
+          id: m.id || Date.now(),
+          title: m.title || m.name || '',
+          caption: m.caption || '',
+          imageUrl: formatImageUrl(m.imageUrl || m.image),
+          isFeatured: m.isFeatured === true || m.isFeatured === 'true'
+        }));
+        return photos;
+      }
+    }
+  } catch (e) {
+    console.error('Apps Script fetchJourneyPhotosFromSheet error:', e);
+  }
+  return [];
+}
+
 export async function GET() {
   try {
-    const localPhotos = readLocalJourneyPhotos();
-    let cloudPhotos = [];
-
-    // Attempt to fetch synced photos from dedicated 'Hành trình' sheet tab via Google Apps Script
-    try {
-      const params = new URLSearchParams({ action: 'getJourney' });
-      const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        redirect: 'follow',
-        next: { revalidate: 0 }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && Array.isArray(data.journeyPhotos) && data.journeyPhotos.length > 0) {
-          // Reverse so newest uploaded photos from Google Sheets appear first!
-          cloudPhotos = [...data.journeyPhotos].reverse().map((m) => ({
-            id: m.id || Date.now(),
-            title: m.title || m.name || '',
-            caption: m.caption || '',
-            imageUrl: formatImageUrl(m.imageUrl || m.image),
-            isFeatured: m.isFeatured === true || m.isFeatured === 'true'
-          }));
-        }
-      }
-    } catch (e) {
-      console.warn('Apps Script GET getJourney warning:', e);
-    }
-
-    let finalPhotos = [];
-
-    if (cloudPhotos.length > 0) {
-      // Create Map keyed by ID so Cloud photos from Google Sheets take precedence
-      const photoMap = new Map();
-      cloudPhotos.forEach((p) => {
-        photoMap.set(String(p.id), p);
-      });
-
-      // Supplement with local photos if not already present
-      localPhotos.forEach((p) => {
-        const key = String(p.id);
-        if (!photoMap.has(key)) {
-          photoMap.set(key, { ...p, imageUrl: formatImageUrl(p.imageUrl) });
-        }
-      });
-
-      finalPhotos = Array.from(photoMap.values());
-    } else {
-      finalPhotos = filterUniquePhotos([
-        ...(inMemoryJourneyPhotos || []),
-        ...localPhotos
-      ]).map((p) => ({ ...p, imageUrl: formatImageUrl(p.imageUrl) }));
-    }
+    const photos = await fetchJourneyPhotosFromSheet();
 
     // Enforce max 5 featured photos cap
     let featCounter = 0;
-    finalPhotos = finalPhotos.map((p) => {
+    const finalPhotos = photos.map((p) => {
       if (p.isFeatured) {
         if (featCounter < 5) {
           featCounter++;
@@ -130,16 +61,13 @@ export async function GET() {
       return { ...p, isFeatured: false };
     });
 
-    // Keep memory cache updated with newest sheet data
-    inMemoryJourneyPhotos = finalPhotos;
-
     return NextResponse.json(
       { success: true, photos: finalPhotos },
       { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' } }
     );
   } catch (error) {
     console.error('Error in /api/journey GET:', error);
-    return NextResponse.json({ success: true, photos: filterUniquePhotos([...readLocalJourneyPhotos(), ...defaultJourneyPhotos]).map(p => ({ ...p, imageUrl: formatImageUrl(p.imageUrl) })) });
+    return NextResponse.json({ success: true, photos: [] });
   }
 }
 
@@ -160,8 +88,9 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Chưa có ảnh nào được chọn!' }, { status: 400 });
     }
 
-    const currentPhotos = readLocalJourneyPhotos();
-    const newPhotos = [];
+    const currentPhotos = await fetchJourneyPhotosFromSheet();
+    let featuredCount = currentPhotos.filter((p) => p.isFeatured).length;
+    let uploadCount = 0;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -173,7 +102,6 @@ export async function POST(request) {
         const base64Image = buffer.toString('base64');
         const mimeType = file.type || 'image/jpeg';
 
-        // 1. Upload to Cloudinary (folder journey_photos)
         try {
           const uploadResponse = await cloudinary.uploader.upload(
             `data:${mimeType};base64,${base64Image}`,
@@ -183,89 +111,51 @@ export async function POST(request) {
             imageUrl = uploadResponse.secure_url;
           }
         } catch (cloudErr) {
-          console.warn('Cloudinary upload warning in /api/journey (falling back to local/base64):', cloudErr);
-        }
-
-        // Fallback to local save or base64 if Cloudinary was unreachable
-        if (!imageUrl) {
-          try {
-            const uploadsDir = path.join(process.cwd(), 'public', 'journey_uploads');
-            if (!fs.existsSync(uploadsDir)) {
-              fs.mkdirSync(uploadsDir, { recursive: true });
-            }
-            const safeName = (file.name || 'image.jpg').replace(/[^a-zA-Z0-9.-]/g, '_');
-            const fileName = `journey_${Date.now()}_${i}_${safeName}`;
-            const filePath = path.join(uploadsDir, fileName);
-            fs.writeFileSync(filePath, buffer);
-            imageUrl = `/journey_uploads/${fileName}`;
-          } catch (localErr) {
-            imageUrl = `data:${mimeType};base64,${base64Image}`;
-          }
+          console.error('Cloudinary upload error in /api/journey:', cloudErr);
         }
       } else if (typeof formData.get('imageUrl') === 'string') {
         imageUrl = formData.get('imageUrl');
       }
 
       if (imageUrl) {
-        // Only set as featured if total featured count is under 5
-        const currentlyFeaturedCount = currentPhotos.filter((p) => p.isFeatured).length + newPhotos.filter((p) => p.isFeatured).length;
-        const autoFeature = currentlyFeaturedCount < 5;
+        const autoFeature = featuredCount < 5;
+        if (autoFeature) featuredCount++;
 
-        const photoObj = {
-          id: Date.now() + i,
-          title: files.length > 1 && title ? `${title} (${i + 1})` : title,
-          caption,
-          imageUrl,
-          isFeatured: autoFeature
-        };
+        const photoId = Date.now() + i;
+        const photoTitle = files.length > 1 && title ? `${title} (${i + 1})` : title;
 
-        newPhotos.push(photoObj);
-
-        // 2. Sync to dedicated 'Hành trình' tab in Google Sheets via Apps Script
         try {
           const params = new URLSearchParams({
             action: 'saveJourney',
-            id: photoObj.id.toString(),
-            title: photoObj.title,
-            caption: photoObj.caption,
+            id: photoId.toString(),
+            title: photoTitle,
+            caption: caption,
             image: imageUrl,
             isFeatured: autoFeature ? 'true' : 'false'
           });
           await fetch(`${googleScriptUrl}?${params.toString()}`, {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
-            redirect: 'follow'
+            redirect: 'follow',
+            next: { revalidate: 0 }
           });
+          uploadCount++;
         } catch (scriptErr) {
           console.warn('Apps Script saveJourney warning:', scriptErr);
         }
       }
     }
 
-    if (newPhotos.length === 0) {
+    if (uploadCount === 0) {
       return NextResponse.json({ success: false, message: 'Tải ảnh lên thất bại!' }, { status: 400 });
     }
 
-    // Balance featured status so max featured count is strictly 5
-    let featCounter = 0;
-    const updatedPhotos = filterUniquePhotos([...currentPhotos, ...newPhotos]).map((p) => {
-      if (p.isFeatured) {
-        if (featCounter < 5) {
-          featCounter++;
-          return { ...p, isFeatured: true };
-        } else {
-          return { ...p, isFeatured: false };
-        }
-      }
-      return { ...p, isFeatured: false };
-    });
-
-    saveLocalJourneyPhotos(updatedPhotos);
+    const updatedPhotos = await fetchJourneyPhotosFromSheet();
 
     return NextResponse.json({
       success: true,
       photos: updatedPhotos,
-      message: `✨ Đã thêm ${newPhotos.length} ảnh vào Section 2 thành công!`
+      message: `✨ Đã thêm ${uploadCount} ảnh vào Section 2 thành công!`
     });
   } catch (error) {
     console.error('Error in /api/journey POST:', error);
@@ -275,47 +165,42 @@ export async function POST(request) {
 
 export async function PATCH(request) {
   try {
-    const { id, isFeatured } = await request.json();
-    if (!id) {
-      return NextResponse.json({ success: false, message: 'Thiếu ID ảnh' }, { status: 400 });
+    const { id, isFeatured, imageUrl } = await request.json();
+    if (!id && !imageUrl) {
+      return NextResponse.json({ success: false, message: 'Thiếu ID hoặc URL ảnh' }, { status: 400 });
     }
 
-    const currentPhotos = readLocalJourneyPhotos();
-
-    if (isFeatured) {
-      const currentlyFeaturedCount = currentPhotos.filter(p => p.isFeatured && String(p.id) !== String(id)).length;
-      if (currentlyFeaturedCount >= 5) {
-        return NextResponse.json({
-          success: false,
-          message: 'Bạn chỉ được chọn tối đa 5 ảnh đại diện hiển thị ngoài Section 2!'
-        }, { status: 400 });
-      }
-    }
-
-    const updatedPhotos = currentPhotos.map(p => {
-      if (String(p.id) === String(id)) {
-        return { ...p, isFeatured: Boolean(isFeatured) };
-      }
-      return p;
-    });
-
-    // Sync toggle star status to Google Sheets 'Hành trình' tab
     try {
       const params = new URLSearchParams({
         action: 'toggleStarJourney',
-        id: id.toString(),
+        id: id ? id.toString() : '',
+        image: imageUrl || '',
         isFeatured: isFeatured ? 'true' : 'false'
       });
-      await fetch(`${googleScriptUrl}?${params.toString()}`, {
+      const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
-        redirect: 'follow'
+        redirect: 'follow',
+        next: { revalidate: 0 }
       });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && Array.isArray(data.journeyPhotos)) {
+          const photos = [...data.journeyPhotos].reverse().map((m) => ({
+            id: m.id || Date.now(),
+            title: m.title || m.name || '',
+            caption: m.caption || '',
+            imageUrl: formatImageUrl(m.imageUrl || m.image),
+            isFeatured: m.isFeatured === true || m.isFeatured === 'true'
+          }));
+          return NextResponse.json({ success: true, photos, message: 'Đã cập nhật trạng thái ảnh!' });
+        }
+      }
     } catch (e) {
       console.warn('Apps Script toggleStarJourney warning:', e);
     }
 
-    saveLocalJourneyPhotos(updatedPhotos);
+    const updatedPhotos = await fetchJourneyPhotosFromSheet();
     return NextResponse.json({ success: true, photos: updatedPhotos, message: 'Đã cập nhật trạng thái ảnh!' });
   } catch (error) {
     console.error('Error in /api/journey PATCH:', error);
@@ -327,49 +212,52 @@ export async function DELETE(request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    if (!id) {
-      return NextResponse.json({ success: false, message: 'Thiếu ID ảnh' }, { status: 400 });
+    const imageUrl = searchParams.get('imageUrl') || searchParams.get('image');
+    if (!id && !imageUrl) {
+      return NextResponse.json({ success: false, message: 'Thiếu ID hoặc URL ảnh cần xóa' }, { status: 400 });
     }
 
-    const currentPhotos = readLocalJourneyPhotos();
-    const targetPhoto = currentPhotos.find((p) => String(p.id) === String(id));
-
-    if (targetPhoto && targetPhoto.imageUrl) {
-      if (targetPhoto.imageUrl.startsWith('/journey_uploads/')) {
+    try {
+      const params = new URLSearchParams({
+        action: 'deleteJourney',
+        id: id ? id.toString() : '',
+        image: imageUrl || ''
+      });
+      const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        redirect: 'follow',
+        next: { revalidate: 0 }
+      });
+      if (response.ok) {
         try {
-          const localPath = path.join(process.cwd(), 'public', targetPhoto.imageUrl);
-          if (fs.existsSync(localPath)) {
-            fs.unlinkSync(localPath);
+          const data = await response.json();
+          if (data.success) {
+            if (Array.isArray(data.journeyPhotos)) {
+              const photos = [...data.journeyPhotos].reverse().map((m) => ({
+                id: m.id || Date.now(),
+                title: m.title || m.name || '',
+                caption: m.caption || '',
+                imageUrl: formatImageUrl(m.imageUrl || m.image),
+                isFeatured: m.isFeatured === true || m.isFeatured === 'true'
+              }));
+              return NextResponse.json({ success: true, photos, message: 'Đã xóa ảnh thành công!' });
+            }
           }
-        } catch (e) {
-          console.warn('Could not delete local file:', e);
+        } catch (jsonErr) {
+          console.warn('Apps Script deleteJourney response parse error:', jsonErr);
         }
       }
-
-      // Sync deletion with Google Sheets 'Hành trình' tab
-      try {
-        const params = new URLSearchParams({
-          action: 'deleteJourney',
-          id: id.toString(),
-          image: targetPhoto.imageUrl
-        });
-        await fetch(`${googleScriptUrl}?${params.toString()}`, {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' },
-          redirect: 'follow'
-        });
-      } catch (e) {
-        console.warn('Apps Script deleteJourney warning:', e);
-      }
+    } catch (e) {
+      console.warn('Apps Script deleteJourney warning:', e);
     }
 
-    const updatedPhotos = currentPhotos.filter((p) => String(p.id) !== String(id));
-    saveLocalJourneyPhotos(updatedPhotos);
-
+    const updatedPhotos = await fetchJourneyPhotosFromSheet();
     return NextResponse.json({ success: true, photos: updatedPhotos, message: 'Đã xóa ảnh thành công!' });
   } catch (error) {
     console.error('Error in /api/journey DELETE:', error);
     return NextResponse.json({ success: false, message: 'Lỗi server khi xóa ảnh' }, { status: 500 });
   }
 }
+
 

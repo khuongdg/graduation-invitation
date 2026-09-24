@@ -82,6 +82,26 @@ export default function Home() {
 
   useEffect(() => {
     fetchJourneyPhotos();
+
+    const handleFocus = () => {
+      fetchJourneyPhotos();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    let channel;
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      channel = new BroadcastChannel('graduation_admin_sync');
+      channel.onmessage = (event) => {
+        if (event.data === 'journey_updated') {
+          fetchJourneyPhotos();
+        }
+      };
+    }
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      if (channel) channel.close();
+    };
   }, []);
 
   useEffect(() => {

@@ -163,6 +163,16 @@ export default function AdminGoalPage() {
     }
   }, [isAuthenticated]);
 
+  const notifySync = () => {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      try {
+        const channel = new BroadcastChannel('graduation_admin_sync');
+        channel.postMessage('journey_updated');
+        channel.close();
+      } catch (e) {}
+    }
+  };
+
   // Submit Journey Photo
   const handleJourneySubmit = async (e) => {
     e.preventDefault();
@@ -200,6 +210,7 @@ export default function AdminGoalPage() {
           if (input) input.value = '';
         }
         setJourneyPhotos(data.photos || []);
+        notifySync();
       } else {
         alert(data.message || 'Tải ảnh thất bại!');
       }
@@ -212,26 +223,31 @@ export default function AdminGoalPage() {
   };
 
   // Delete Journey Photo
-  const handleJourneyDelete = async (id) => {
+  const handleJourneyDelete = async (id, imageUrl) => {
     if (!confirm('Bạn có chắc chắn muốn xóa ảnh này khỏi Section 2?')) return;
     try {
-      const res = await fetch(`/api/journey?id=${id}&t=${Date.now()}`, {
+      const url = `/api/journey?id=${encodeURIComponent(id || '')}&imageUrl=${encodeURIComponent(imageUrl || '')}&t=${Date.now()}`;
+      const res = await fetch(url, {
         method: 'DELETE',
         cache: 'no-store'
       });
       const data = await res.json();
       if (data.success) {
         setJourneyPhotos(data.photos || []);
+        notifySync();
       } else {
         alert(data.message || 'Xóa ảnh thất bại!');
+        fetchJourneyPhotos();
       }
     } catch (err) {
       console.error('Delete error:', err);
+      alert('Lỗi kết nối khi xóa ảnh!');
+      fetchJourneyPhotos();
     }
   };
 
   // Toggle Star (Featured status) for Section 2 Photo
-  const handleToggleStar = async (id, currentStatus) => {
+  const handleToggleStar = async (id, currentStatus, imageUrl) => {
     const featuredCount = journeyPhotos.filter((p) => p.isFeatured).length;
 
     if (!currentStatus && featuredCount >= 5) {
@@ -243,17 +259,20 @@ export default function AdminGoalPage() {
       const res = await fetch(`/api/journey?t=${Date.now()}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, isFeatured: !currentStatus }),
+        body: JSON.stringify({ id, isFeatured: !currentStatus, imageUrl }),
         cache: 'no-store'
       });
       const data = await res.json();
       if (data.success) {
         setJourneyPhotos(data.photos || []);
+        notifySync();
       } else {
         alert(data.message || 'Cập nhật thất bại!');
+        fetchJourneyPhotos();
       }
     } catch (err) {
       console.error('Toggle star error:', err);
+      fetchJourneyPhotos();
     }
   };
 
@@ -904,7 +923,7 @@ export default function AdminGoalPage() {
                             borderTop: '1px solid rgba(255, 255, 255, 0.08)'
                           }}>
                             <button
-                              onClick={() => handleJourneyDelete(p.id)}
+                              onClick={() => handleJourneyDelete(p.id, p.imageUrl)}
                               style={{
                                 padding: '7px 13px',
                                 borderRadius: '8px',
@@ -921,7 +940,7 @@ export default function AdminGoalPage() {
                             </button>
 
                             <button
-                              onClick={() => handleToggleStar(p.id, p.isFeatured)}
+                              onClick={() => handleToggleStar(p.id, p.isFeatured, p.imageUrl)}
                               title={p.isFeatured ? 'Bỏ chọn ảnh đại diện' : 'Chọn làm ảnh đại diện Section 2'}
                               style={{
                                 display: 'inline-flex',

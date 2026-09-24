@@ -43,6 +43,11 @@ export default function HeroSection({ heroRef, parallaxOffset, onBeginJourney, o
           <span className="hero-candidate-name">DƯƠNG NHỰT KHƯƠNG</span>
         </div>
 
+        {/* Major / Title Glass Badge */}
+        <div className="hero-major-badge">
+          <span className="hero-major-text">🎓 Tân cử nhân Kỹ thuật phần mềm</span>
+        </div>
+
         {/* Quote */}
         <p className="hero-quote-italic">
           “Every ending is the beginning of something new.”
