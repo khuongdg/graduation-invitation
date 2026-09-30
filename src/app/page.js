@@ -196,7 +196,7 @@ export default function Home() {
           setIsUploadOpen(false);
           setUploadState('idle');
           isUploadingRef.current = false;
-        }, 1500);
+        }, 2800);
       } else {
         alert(data.message || 'Tải ảnh lên thất bại!');
         setUploadState('idle');

@@ -33,7 +33,7 @@ export default function MemoriesSection({
           style={{ padding: '12px 28px', fontSize: '0.95rem' }}
           onClick={onOpenUploadModal}
         >
-          + Add Memory
+          + Thêm kỷ niệm
         </button>
 
         <div className="film-rolls-container">
@@ -49,7 +49,7 @@ export default function MemoriesSection({
 
           {uploadState !== 'success' ? (
             <>
-              <h3 className="modal-form-title">Gửi Ảnh Kỷ Niệm 📸</h3>
+              <h3 className="modal-form-title">Gửi Ảnh Kỷ Niệm/Lời chúc</h3>
               <form onSubmit={onUploadSubmit}>
                 <div className="glass-input-group">
                   <label className="glass-input-label">Tên của bạn</label>
@@ -102,10 +102,32 @@ export default function MemoriesSection({
               </form>
             </>
           ) : (
-            <div style={{ textAlign: 'center', padding: '10px 0' }}>
-              <div className="success-check-badge">✓</div>
-              <h3 style={{ color: '#FFF' }}>Gửi ảnh thành công!</h3>
-              <p style={{ color: 'rgba(255,255,255,0.8)' }}>Ảnh của bạn đã được đưa lên cuộn phim kỷ niệm! 🎞️✨</p>
+            <div className="success-modal-wrapper">
+              <div className="success-confetti-container">
+                <span className="confetti-item c1">📸</span>
+                <span className="confetti-item c2">✨</span>
+                <span className="confetti-item c3">🎞️</span>
+                <span className="confetti-item c4">⭐</span>
+                <span className="confetti-item c5">🎊</span>
+                <span className="confetti-item c6">✨</span>
+              </div>
+
+              <div className="success-badge-container">
+                <div className="success-badge-ripple"></div>
+                <div className="success-check-badge">
+                  <svg className="success-check-svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+              </div>
+
+              <h3 className="success-modal-title">Gửi thành công!</h3>
+              <p className="success-modal-desc">
+                Ảnh/Lời chúc của bạn đã được đưa lên cuộn phim kỷ niệm! 🎞️✨
+              </p>
+              <button className="glass-submit-btn success-btn-anim" onClick={onCloseUploadModal}>
+                Đóng
+              </button>
             </div>
           )}
         </div>
@@ -142,14 +164,23 @@ export default function MemoriesSection({
             </div>
             {(selectedPhoto.name || selectedPhoto.title || selectedPhoto.caption) && (
               <div style={{ marginTop: '16px', textAlign: 'left' }}>
-                {(selectedPhoto.name || selectedPhoto.title) && (
-                  <h4 style={{ margin: 0, color: '#FFF', fontSize: '1.2rem', wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span>💌</span>
-                    <span>{selectedPhoto.name || selectedPhoto.title}</span>
-                  </h4>
-                )}
+                <div className="lightbox-header-row">
+                  {(selectedPhoto.name || selectedPhoto.title) && (
+                    <h4 style={{ margin: 0, color: '#FFF', fontSize: '1.2rem', wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>💌</span>
+                      <span>{selectedPhoto.name || selectedPhoto.title}</span>
+                    </h4>
+                  )}
+
+                  {(selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt) && (
+                    <span className="lightbox-time-badge">
+                      {selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt}
+                    </span>
+                  )}
+                </div>
+
                 {selectedPhoto.caption && (
-                  <p className="lightbox-photo-caption" style={{ marginTop: (selectedPhoto.name || selectedPhoto.title) ? '6px' : '0px' }}>
+                  <p className="lightbox-photo-caption" style={{ marginTop: (selectedPhoto.name || selectedPhoto.title) ? '8px' : '0px' }}>
                     “{selectedPhoto.caption}”
                   </p>
                 )}

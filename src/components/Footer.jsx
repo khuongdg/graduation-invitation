@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
+import { siteConfig } from '@/config/siteConfig';
 
 export default function Footer() {
   return (
     <footer className="footer-copyright">
-      © 2026 Khương Dương. All rights reserved.
+      {siteConfig.footer.copyright}
     </footer>
   );
 }

@@ -18,7 +18,7 @@ export default function RsvpModal({
 
         {submitState !== 'success' ? (
           <>
-            <h3 className="modal-form-title">Xác nhận tham dự</h3>
+            <h3 className="modal-form-title">Thông tin xác nhận</h3>
             <form onSubmit={onSubmit}>
               <div className="glass-input-group">
                 <label className="glass-input-label">Họ và tên</label>
@@ -76,30 +76,43 @@ export default function RsvpModal({
                     onClick={() => setFormData((prev) => ({ ...prev, status: 'Bận không tham gia' }))}
                   >
                     <span className="pill-icon">💌</span>
-                    <span>Bận không tham gia</span>
+                    <span>Tiếc là không thể</span>
                   </button>
                 </div>
               </div>
 
               <button type="submit" className="glass-submit-btn" disabled={submitState === 'loading'}>
-                {submitState === 'loading' ? 'Đang gửi...' : 'Submit'}
+                {submitState === 'loading' ? 'Đang gửi...' : 'Xác nhận'}
               </button>
             </form>
           </>
         ) : (
-          <div style={{ textAlign: 'center', padding: '10px 0' }}>
-            <div className="success-check-badge">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
+          <div className="success-modal-wrapper">
+            <div className="success-confetti-container">
+              <span className="confetti-item c1">🎉</span>
+              <span className="confetti-item c2">✨</span>
+              <span className="confetti-item c3">💖</span>
+              <span className="confetti-item c4">⭐</span>
+              <span className="confetti-item c5">🎊</span>
+              <span className="confetti-item c6">✨</span>
             </div>
-            <h3 style={{ fontSize: '1.8rem', color: '#FFF', margin: '0 0 10px 0' }}>Thank You!</h3>
-            <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1rem', lineHeight: '1.6', margin: '0 0 24px 0' }}>
+
+            <div className="success-badge-container">
+              <div className="success-badge-ripple"></div>
+              <div className="success-check-badge">
+                <svg className="success-check-svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <h3 className="success-modal-title">Thank You!</h3>
+            <p className="success-modal-desc">
               {formData.status === 'Xác nhận tham gia'
                 ? 'Bạn đã xác nhận tham dự thành công. Hẹn gặp bạn tại lễ tốt nghiệp!'
                 : 'Cảm ơn bạn đã phản hồi. Rất tiếc vì bạn không thể tham dự, hẹn gặp bạn vào một dịp gần nhất nhé!'}
             </p>
-            <button className="glass-submit-btn" onClick={onCloseModal}>
+            <button className="glass-submit-btn success-btn-anim" onClick={onCloseModal}>
               Đóng
             </button>
           </div>

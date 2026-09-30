@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { siteConfig } from '@/config/siteConfig';
 
 export default function MapSection() {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { map } = siteConfig;
 
   useEffect(() => {
     setMounted(true);
@@ -24,9 +26,9 @@ export default function MapSection() {
 
   return (
     <section className="map-section">
-      <h2 style={{ fontSize: '2rem', color: '#FFF', margin: '0 0 8px 0', textAlign: 'center' }}>Địa điểm</h2>
+      <h2 style={{ fontSize: '2rem', color: '#FFF', margin: '0 0 8px 0', textAlign: 'center' }}>{map.title}</h2>
       <p style={{ color: 'rgba(255,255,255,0.75)', textAlign: 'center', margin: '0 0 24px 0', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
-        Trường Đại học Tôn Đức Thắng, số 19 đường Nguyễn Hữu Thọ, Phường Tân Hưng, Tp. Hồ Chí Minh
+        {map.address}
       </p>
 
       {/* Clickable Map Image with Hint Badge */}
@@ -35,7 +37,7 @@ export default function MapSection() {
         onClick={() => setIsMapModalOpen(true)}
         title="Bấm để phóng to sơ đồ"
       >
-        <img src="/assets/tdtu_mapv1.png" alt="Sơ đồ tổng quát TDTU" className="map-image" />
+        <img src={map.image} alt="Sơ đồ tổng quát TDTU" className="map-image" />
         <div className="map-zoom-hint-badge">
           🔍 Chỉ đường
         </div>
@@ -46,9 +48,9 @@ export default function MapSection() {
         <div className="map-info-card">
           <div className="map-info-icon-wrap">📍</div>
           <div className="map-info-content">
-            <h4 className="map-info-card-title">Địa điểm chính thức</h4>
+            <h4 className="map-info-card-title">{map.cards.locationTitle}</h4>
             <p className="map-info-card-desc">
-              Hội trường lớn Tòa nhà A, Trường Đại học Tôn Đức Thắng.
+              {map.cards.locationDesc}
             </p>
           </div>
         </div>
@@ -56,9 +58,9 @@ export default function MapSection() {
         <div className="map-info-card">
           <div className="map-info-icon-wrap">🛵</div>
           <div className="map-info-content">
-            <h4 className="map-info-card-title">Cổng vào & Gửi xe</h4>
+            <h4 className="map-info-card-title">{map.cards.parkingTitle}</h4>
             <p className="map-info-card-desc">
-              Các bạn đi vào bằng <strong>Cổng 7</strong> hoặc <strong>Cổng 5</strong> (Đường D6). Gửi xe máy tại tầng hầm Nhà Thi Đấu (kế bên sân bóng đá) hoặc tầng hầm Tòa nhà F, D, L.
+              {map.cards.parkingDesc}
             </p>
           </div>
         </div>
@@ -89,7 +91,7 @@ export default function MapSection() {
               background: 'rgba(0, 0, 0, 0.25)'
             }}>
               <img
-                src="/assets/tdtu_mapv1.png"
+                src={map.image}
                 alt="Sơ đồ tổng quát TDTU"
                 style={{
                   maxWidth: '100%',
@@ -105,7 +107,7 @@ export default function MapSection() {
 
             <div style={{ marginTop: '12px', textAlign: 'center', width: '100%' }}>
               <a 
-                href="https://maps.google.com/?q=Tr%C6%B0%E1%BB%9Dng+%C4%90%E1%BA%A1i+h%E1%BB%8Dc+T%C3%B4n+%C4%90%E1%BB%A9c+Th%E1%BA%AFng" 
+                href={map.googleMapsUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="map-google-btn"

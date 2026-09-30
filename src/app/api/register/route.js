@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { siteConfig } from '@/config/siteConfig';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // In-memory cache to prevent rapid duplicate submissions (within 15 seconds)
 const recentRegistrations = new Map();
@@ -65,7 +69,7 @@ export async function POST(request) {
     }
 
     // 2. Proxy request to Google Sheets Apps Script Web App (using GET with query params)
-    const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbx-GSi_AUvfJEw-VPTAnEsAsac12aaX45IPYhA0kSEP_QfT40J7koeRnGb_YsY662NDyw/exec';
+    const googleScriptUrl = siteConfig.googleScriptUrl;
     const params = new URLSearchParams({
       name,
       phone,

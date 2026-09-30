@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { formatImageUrl } from '@/utils/image';
+import { siteConfig } from '@/config/siteConfig';
 
 // Configure Cloudinary using environment variables with fallbacks
 cloudinary.config({
@@ -9,7 +10,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET || 'XzibdHMYDNJA1f4jqlC8y9js0ys',
 });
 
-const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbx-GSi_AUvfJEw-VPTAnEsAsac12aaX45IPYhA0kSEP_QfT40J7koeRnGb_YsY662NDyw/exec';
+const googleScriptUrl = siteConfig.googleScriptUrl;
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

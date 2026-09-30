@@ -1,12 +1,13 @@
 import "./globals.css";
+import { siteConfig } from "@/config/siteConfig";
 
 export const metadata = {
-  title: "My Special Day! - Graduation Invitation 🎓",
-  description: "Thiệp mời tham dự Lễ Tốt Nghiệp Đại học Tôn Đức Thắng",
+  title: siteConfig.meta.title,
+  description: siteConfig.meta.description,
   icons: {
-    icon: '/assets/graduation-symbol.png',
-    shortcut: '/assets/graduation-symbol.png',
-    apple: '/assets/graduation-symbol.png',
+    icon: siteConfig.meta.icon,
+    shortcut: siteConfig.meta.icon,
+    apple: siteConfig.meta.icon,
   },
 };
 

@@ -58,7 +58,7 @@ function GalaxyStarfield({ isMobile }) {
         ctx.save();
         ctx.globalAlpha = Math.max(0.15, Math.min(1, star.alpha));
         ctx.fillStyle = star.color;
-        
+
         if (!isMobile) {
           ctx.shadowColor = star.color;
           ctx.shadowBlur = star.radius * 4;
@@ -195,7 +195,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
     ? fetchedPhotos
     : ((Array.isArray(photos) && photos.length > 0) ? photos : defaultGlobePhotos);
   const sourcePhotos = activePhotos;
-  
+
   const globeItems = [...sourcePhotos];
 
   // Mobile responsive dimensions tracking
@@ -794,15 +794,23 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
 
             {(selectedPhoto.title || selectedPhoto.name || selectedPhoto.caption) && (
               <div style={{ marginTop: '16px', textAlign: 'left' }}>
-                {(selectedPhoto.title || selectedPhoto.name) && (
-                  <h4 style={{ margin: 0, color: '#FFF', fontSize: '1.2rem', wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span>💌</span>
-                    <span>{selectedPhoto.title || selectedPhoto.name}</span>
-                  </h4>
-                )}
+                <div className="lightbox-header-row">
+                  {(selectedPhoto.title || selectedPhoto.name) && (
+                    <h4 style={{ margin: 0, color: '#FFF', fontSize: '1.2rem', wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>💌</span>
+                      <span>{selectedPhoto.title || selectedPhoto.name}</span>
+                    </h4>
+                  )}
+
+                  {(selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt) && (
+                    <span className="lightbox-time-badge">
+                      {selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt}
+                    </span>
+                  )}
+                </div>
 
                 {selectedPhoto.caption && (
-                  <p className="lightbox-photo-caption" style={{ marginTop: (selectedPhoto.title || selectedPhoto.name) ? '6px' : '0px' }}>
+                  <p className="lightbox-photo-caption" style={{ marginTop: (selectedPhoto.title || selectedPhoto.name) ? '8px' : '0px' }}>
                     “{selectedPhoto.caption}”
                   </p>
                 )}

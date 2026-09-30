@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { formatImageUrl } from '@/utils/image';
+import { siteConfig } from '@/config/siteConfig';
 
 // Configure Cloudinary using environment variables
 cloudinary.config({
@@ -9,14 +10,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const defaultMemories = [
-  { id: 1, name: "Nhóm bạn thân", caption: "Tình bạn diệu kỳ, luôn rạng rỡ nhé!", imageUrl: "/default_memories/memory_grad_chibi.png" },
-  { id: 2, name: "Cả lớp cử nhân", caption: "Tung bay những ước mơ!", imageUrl: "/default_memories/memory_grad_cap.png" },
-  { id: 3, name: "Khương & Tấm bằng", caption: "Chúc Khương thành công trên con đường mới!", imageUrl: "/default_memories/memory_grad_solo.png" },
-  { id: 4, name: "Thầy cô & Bạn bè", caption: "Kỷ niệm đẹp đẽ thời sinh viên!", imageUrl: "/default_memories/memory_grad_group.png" }
-];
-
-const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbx-GSi_AUvfJEw-VPTAnEsAsac12aaX45IPYhA0kSEP_QfT40J7koeRnGb_YsY662NDyw/exec';
+const defaultMemories = siteConfig.defaultMemories;
+const googleScriptUrl = siteConfig.googleScriptUrl;
 
 // In-memory cache to prevent duplicate upload requests (5 minute window)
 const recentMemories = new Map();
@@ -29,7 +24,7 @@ function isDuplicateMemory(key) {
     return true;
   }
   recentMemories.set(key, now);
-  
+
   if (recentMemories.size > 200) {
     for (const [k, time] of recentMemories.entries()) {
       if (now - time > 600000) recentMemories.delete(k);
@@ -81,13 +76,14 @@ export async function GET() {
       if (data.success && data.memories) {
         userMemories = data.memories.map((m) => ({
           ...m,
-          imageUrl: formatImageUrl(m.imageUrl || m.image)
+          imageUrl: formatImageUrl(m.imageUrl || m.image),
+          time: m.time || m.timestamp || m.date || m.createdAt || m.created_at || ''
         }));
       }
     } else {
       console.error('Apps Script getMemories returned error status:', response.status);
     }
-    
+
     // Combine user uploaded memories with default ones to ensure rolls are rich
     const formattedDefaults = defaultMemories.map((m) => ({ ...m, imageUrl: formatImageUrl(m.imageUrl) }));
     const combined = filterUniqueMemories([...userMemories, ...formattedDefaults]);
@@ -128,7 +124,7 @@ export async function POST(request) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const base64Image = buffer.toString('base64');
-      
+
       // Upload image to Cloudinary
       const uploadResponse = await cloudinary.uploader.upload(
         `data:${file.type};base64,${base64Image}`,
@@ -138,18 +134,27 @@ export async function POST(request) {
       );
 
       const imageUrl = uploadResponse.secure_url;
-      
+
       if (isDuplicateImageUrl(imageUrl)) {
         console.log(`[Deduplication] Duplicate image URL skipped for Apps Script: ${imageUrl}`);
         continue;
       }
-      
+
+      let currentTimestamp = '';
+      try {
+        currentTimestamp = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+      } catch (e) {
+        currentTimestamp = new Date().toLocaleString();
+      }
+
       // Proxy request to Google Sheets via Apps Script GET (avoids POST-redirect body loss in Node)
       const params = new URLSearchParams({
         action: 'saveMemory',
         name,
         caption,
-        image: imageUrl
+        image: imageUrl,
+        time: currentTimestamp,
+        timestamp: currentTimestamp
       });
 
       const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
@@ -159,7 +164,7 @@ export async function POST(request) {
         },
         redirect: 'follow'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.memories) {

@@ -169,7 +169,7 @@ export default function AdminGoalPage() {
         const channel = new BroadcastChannel('graduation_admin_sync');
         channel.postMessage('journey_updated');
         channel.close();
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -1460,14 +1460,23 @@ export default function AdminGoalPage() {
             </div>
             {(selectedPhoto.name || selectedPhoto.title || selectedPhoto.caption) && (
               <div style={{ marginTop: '16px', textAlign: 'left' }}>
-                {(selectedPhoto.name || selectedPhoto.title) && (
-                  <h4 style={{ margin: 0, color: '#FFF', fontSize: '1.2rem', wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span>💌</span>
-                    <span>{selectedPhoto.name || selectedPhoto.title}</span>
-                  </h4>
-                )}
+                <div className="lightbox-header-row">
+                  {(selectedPhoto.name || selectedPhoto.title) && (
+                    <h4 style={{ margin: 0, color: '#FFF', fontSize: '1.2rem', wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>💌</span>
+                      <span>{selectedPhoto.name || selectedPhoto.title}</span>
+                    </h4>
+                  )}
+
+                  {(selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt) && (
+                    <span className="lightbox-time-badge">
+                      {selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt}
+                    </span>
+                  )}
+                </div>
+
                 {selectedPhoto.caption && (
-                  <p className="lightbox-photo-caption" style={{ marginTop: (selectedPhoto.name || selectedPhoto.title) ? '6px' : '0px', color: 'rgba(255, 255, 255, 0.85)', fontStyle: 'italic' }}>
+                  <p className="lightbox-photo-caption" style={{ marginTop: (selectedPhoto.name || selectedPhoto.title) ? '8px' : '0px', color: 'rgba(255, 255, 255, 0.85)', fontStyle: 'italic' }}>
                     “{selectedPhoto.caption}”
                   </p>
                 )}

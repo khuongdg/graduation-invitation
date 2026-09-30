@@ -1,8 +1,11 @@
 'use client';
 
 import React from 'react';
+import { siteConfig } from '@/config/siteConfig';
 
 export default function HeroSection({ heroRef, parallaxOffset, onBeginJourney, onOpenAdminModal }) {
+  const { candidate } = siteConfig;
+
   return (
     <main className="hero-card-fullscreen" ref={heroRef}>
       {/* Menu button inside hero header actions (Top-Right) */}
@@ -29,28 +32,28 @@ export default function HeroSection({ heroRef, parallaxOffset, onBeginJourney, o
       >
         {/* Circular Liquid Glass Ring surrounding TDTU Logo */}
         <div className="hero-logo-ring">
-          <img src="/assets/logoTDTU.png" alt="TDTU Logo" className="hero-tdtu-logo" />
+          <img src={candidate.logoUrl} alt={`${candidate.schoolShort} Logo`} className="hero-tdtu-logo" />
         </div>
 
         {/* Main Title: Graduation Invitation */}
         <h1 className="hero-title-main">Graduation Invitation</h1>
 
         {/* Subtitle Gradient: Class of 2026 */}
-        <div className="hero-title-class-gradient">Class of 2026</div>
+        <div className="hero-title-class-gradient">{candidate.classYear}</div>
 
         {/* Student Name inside Frosted Liquid Glass Badge */}
         <div className="hero-candidate-badge">
-          <span className="hero-candidate-name">DƯƠNG NHỰT KHƯƠNG</span>
+          <span className="hero-candidate-name">{candidate.name}</span>
         </div>
 
         {/* Major / Title Glass Badge */}
         <div className="hero-major-badge">
-          <span className="hero-major-text">🎓 Tân cử nhân Kỹ thuật phần mềm</span>
+          <span className="hero-major-text">{candidate.major}</span>
         </div>
 
         {/* Quote */}
         <p className="hero-quote-italic">
-          “Every ending is the beginning of something new.”
+          {candidate.quote}
         </p>
 
         {/* Primary CTA Liquid Glass Button */}
