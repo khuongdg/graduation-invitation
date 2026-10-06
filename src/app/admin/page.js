@@ -1284,37 +1284,60 @@ export default function AdminGoalPage() {
                           {/* Image Preview & Overlay Info */}
                           <div
                             onClick={() => setSelectedPhoto(m)}
-                            title="Click để xem ảnh chi tiết"
+                            title="Click để xem chi tiết"
                             style={{ position: 'relative', height: '210px', width: '100%', overflow: 'hidden', cursor: 'pointer' }}
                           >
-                            <img
-                              src={formatImageUrl(m.imageUrl || m.image)}
-                              alt={m.name || m.title || 'Kỷ niệm'}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                            />
-
-                            {/* Title & Caption Overlay on Photo */}
-                            {(m.name || m.title || m.caption) && (
+                            {Boolean(m.imageUrl || m.image) ? (
+                              <>
+                                <img
+                                  src={formatImageUrl(m.imageUrl || m.image)}
+                                  alt={m.name || m.title || 'Kỷ niệm'}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                />
+                                {(m.name || m.title || m.caption) && (
+                                  <div style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    padding: '30px 14px 12px 14px',
+                                    background: 'linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%)',
+                                    pointerEvents: 'none',
+                                    zIndex: 1
+                                  }}>
+                                    {(m.name || m.title) && (
+                                      <div style={{ fontWeight: '700', color: '#FFF', fontSize: '0.98rem', textShadow: '0 2px 4px rgba(0,0,0,0.9)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        💌 {m.name || m.title}
+                                      </div>
+                                    )}
+                                    {m.caption && (
+                                      <div style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '0.8rem', marginTop: (m.name || m.title) ? '3px' : '0px', textShadow: '0 1px 3px rgba(0,0,0,0.9)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        “{m.caption}”
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </>
+                            ) : (
                               <div style={{
-                                position: 'absolute',
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                padding: '30px 14px 12px 14px',
-                                background: 'linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%)',
-                                pointerEvents: 'none',
-                                zIndex: 1
+                                width: '100%',
+                                height: '100%',
+                                background: 'linear-gradient(145deg, #FFFDF9 0%, #F5E8D4 50%, #E9D5B5 100%)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '16px',
+                                textAlign: 'center',
+                                boxSizing: 'border-box'
                               }}>
-                                {(m.name || m.title) && (
-                                  <div style={{ fontWeight: '700', color: '#FFF', fontSize: '0.98rem', textShadow: '0 2px 4px rgba(0,0,0,0.9)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    💌 {m.name || m.title}
-                                  </div>
-                                )}
-                                {m.caption && (
-                                  <div style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '0.8rem', marginTop: (m.name || m.title) ? '3px' : '0px', textShadow: '0 1px 3px rgba(0,0,0,0.9)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    “{m.caption}”
-                                  </div>
-                                )}
+                                <span style={{ fontSize: '2.2rem', lineHeight: 1 }}>💌</span>
+                                <span style={{ fontWeight: '700', color: '#3D2614', fontSize: '0.95rem', marginTop: '6px' }}>
+                                  {m.name || m.title || 'Lời chúc'}
+                                </span>
+                                <p style={{ color: '#5C4331', fontSize: '0.8rem', fontStyle: 'italic', margin: '4px 0 0 0', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', wordBreak: 'break-word' }}>
+                                  “{m.caption || ''}”
+                                </p>
                               </div>
                             )}
                           </div>
@@ -1434,52 +1457,57 @@ export default function AdminGoalPage() {
         <div className="glass-modal-overlay open" onClick={() => setSelectedPhoto(null)} style={{ zIndex: 10000 }}>
           <div className="glass-modal-content photo-lightbox-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close-icon" onClick={() => setSelectedPhoto(null)}>✕</button>
-            <div style={{
-              width: '100%',
-              maxHeight: '78vh',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '14px',
-              overflow: 'hidden',
-              background: 'rgba(0, 0, 0, 0.4)'
-            }}>
-              <img
-                src={formatImageUrl(selectedPhoto.imageUrl || selectedPhoto.image)}
-                alt={selectedPhoto.name || selectedPhoto.title || 'Kỷ niệm'}
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '78vh',
-                  width: 'auto',
-                  height: 'auto',
-                  objectFit: 'contain',
-                  borderRadius: '14px',
-                  display: 'block'
-                }}
-              />
-            </div>
-            {(selectedPhoto.name || selectedPhoto.title || selectedPhoto.caption) && (
-              <div style={{ marginTop: '16px', textAlign: 'left' }}>
-                <div className="lightbox-header-row">
-                  {(selectedPhoto.name || selectedPhoto.title) && (
-                    <h4 style={{ margin: 0, color: '#FFF', fontSize: '1.2rem', wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span>💌</span>
-                      <span>{selectedPhoto.name || selectedPhoto.title}</span>
-                    </h4>
-                  )}
 
-                  {(selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt) && (
-                    <span className="lightbox-time-badge">
-                      {selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt}
-                    </span>
-                  )}
+            {Boolean(selectedPhoto.imageUrl || selectedPhoto.image) ? (
+              <>
+                <div className="lightbox-image-wrapper">
+                  <img
+                    src={formatImageUrl(selectedPhoto.imageUrl || selectedPhoto.image)}
+                    alt={selectedPhoto.name || selectedPhoto.title || 'Kỷ niệm'}
+                    className="lightbox-image"
+                  />
                 </div>
+                {(selectedPhoto.name || selectedPhoto.title || selectedPhoto.caption) && (
+                  <div className="lightbox-caption-box">
+                    <div className="lightbox-header-row">
+                      {(selectedPhoto.name || selectedPhoto.title) && (
+                        <h4 style={{ margin: 0, color: '#FFF', fontSize: '1.2rem', wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>💌</span>
+                          <span>{selectedPhoto.name || selectedPhoto.title}</span>
+                        </h4>
+                      )}
 
-                {selectedPhoto.caption && (
-                  <p className="lightbox-photo-caption" style={{ marginTop: (selectedPhoto.name || selectedPhoto.title) ? '8px' : '0px', color: 'rgba(255, 255, 255, 0.85)', fontStyle: 'italic' }}>
-                    “{selectedPhoto.caption}”
-                  </p>
+                      {(selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt) && (
+                        <span className="lightbox-time-badge">
+                          {selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt}
+                        </span>
+                      )}
+                    </div>
+
+                    {selectedPhoto.caption && (
+                      <p className="lightbox-photo-caption" style={{ marginTop: (selectedPhoto.name || selectedPhoto.title) ? '8px' : '0px', color: 'rgba(255, 255, 255, 0.85)', fontStyle: 'italic' }}>
+                        “{selectedPhoto.caption}”
+                      </p>
+                    )}
+                  </div>
                 )}
+              </>
+            ) : (
+              /* Text-Only Wish Letter Card View */
+              <div className="lightbox-letter-modal-card">
+                <div className="letter-modal-seal">💌</div>
+                <h3 className="letter-modal-title">
+                  {selectedPhoto.name || selectedPhoto.title || 'Người bạn thân'}
+                </h3>
+                {(selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt) && (
+                  <span className="letter-modal-time">
+                    {selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt}
+                  </span>
+                )}
+                <div className="letter-modal-divider" />
+                <p className="letter-modal-content">
+                  “{selectedPhoto.caption || ''}”
+                </p>
               </div>
             )}
           </div>

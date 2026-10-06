@@ -305,7 +305,11 @@ function getMemories() {
     
     for (var i = 1; i < data.length; i++) {
       var row = data[i];
-      if (row[2] && row[2].toString().trim() !== "") {
+      var nameVal = row[0] ? row[0].toString().trim() : "";
+      var captionVal = row[1] ? row[1].toString().trim() : "";
+      var imageVal = row[2] ? row[2].toString().trim() : "";
+      
+      if (nameVal !== "" || captionVal !== "" || imageVal !== "") {
         var timeVal = "";
         if (row[3]) {
           if (row[3] instanceof Date) {
@@ -316,9 +320,9 @@ function getMemories() {
         }
         memories.push({
           id: i,
-          name: row[0] || "Người thương",
-          caption: row[1] || "",
-          imageUrl: row[2].toString().trim(),
+          name: nameVal || "Người thương",
+          caption: captionVal || "",
+          imageUrl: imageVal,
           timestamp: timeVal
         });
       }

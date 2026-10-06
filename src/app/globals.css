@@ -918,17 +918,144 @@ body {
   font-weight: 600;
 }
 
-.journey-description {
-  font-family: 'Be Vietnam Pro', sans-serif;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 1.02rem;
-  line-height: 1.75;
-  letter-spacing: 0.01em;
-  margin-bottom: 28px;
+/* Journey Section Vertical Memory Timeline */
+.journey-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 22px 0 28px 0;
+  padding-left: 2px;
 }
 
-.journey-description p {
-  margin: 0 0 16px 0;
+.journey-timeline-line {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  bottom: 20px;
+  width: 2px;
+  background: linear-gradient(180deg, #00F0FF 0%, #FF2A55 50%, #9333EA 100%);
+  opacity: 0.45;
+  z-index: 1;
+}
+
+.journey-timeline-item {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  z-index: 2;
+}
+
+.timeline-node-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  z-index: 3;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.timeline-node-icon.amber-glow {
+  border-color: rgba(255, 199, 0, 0.8);
+  box-shadow: 0 0 16px rgba(255, 199, 0, 0.45);
+}
+
+.timeline-node-icon.blue-glow {
+  border-color: rgba(0, 240, 255, 0.8);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.45);
+}
+
+.timeline-node-icon.pink-glow {
+  border-color: rgba(244, 114, 182, 0.8);
+  box-shadow: 0 0 16px rgba(244, 114, 182, 0.45);
+}
+
+.journey-timeline-item:hover .timeline-node-icon {
+  transform: scale(1.15);
+}
+
+.timeline-content-card {
+  flex: 1;
+  background: rgba(15, 22, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 16px 18px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.journey-timeline-item:hover .timeline-content-card {
+  transform: translateY(-2px) translateX(3px);
+  background: rgba(20, 28, 52, 0.8);
+  border-color: rgba(0, 240, 255, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(0, 240, 255, 0.15);
+}
+
+.timeline-card-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.timeline-card-tag.tag-amber {
+  background: rgba(255, 199, 0, 0.18);
+  color: #FFD700;
+  border: 1px solid rgba(255, 199, 0, 0.45);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.timeline-card-tag.tag-blue {
+  background: rgba(0, 240, 255, 0.18);
+  color: #00F0FF;
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.timeline-card-tag.tag-pink {
+  background: rgba(244, 114, 182, 0.18);
+  color: #F472B6;
+  border: 1px solid rgba(244, 114, 182, 0.45);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.timeline-card-text {
+  font-size: 0.93rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0;
+}
+
+.highlight-text-amber {
+  color: #FFD700;
+  font-weight: 700;
+}
+
+.highlight-text-blue {
+  color: #00F0FF;
+  font-weight: 700;
+}
+
+.highlight-text-pink {
+  color: #F472B6;
+  font-weight: 700;
 }
 
 .btn-pill-dark {
@@ -1054,13 +1181,13 @@ body {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: rgba(255, 42, 85, 0.15);
-  border: 1px solid rgba(255, 42, 85, 0.4);
+  background: rgba(0, 240, 255, 0.12);
+  border: 1.5px solid rgba(0, 240, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
-  box-shadow: 0 0 25px rgba(255, 42, 85, 0.4);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.4), inset 0 0 15px rgba(0, 240, 255, 0.2);
 }
 
 .invitation-subtitle {
@@ -1082,11 +1209,11 @@ body {
 
 .invitation-main-title .highlight-ceremony {
   font-family: 'Great Vibes', 'Alex Brush', cursive;
-  color: var(--accent-red);
+  color: #00F0FF;
   font-weight: 400;
-  font-size: 1.15em;
+  font-size: 1.2em;
   margin-left: 8px;
-  text-shadow: 0 0 20px rgba(255, 42, 85, 0.7);
+  text-shadow: 0 0 25px rgba(0, 240, 255, 0.85), 0 0 45px rgba(0, 240, 255, 0.5);
 }
 
 /* Event Details Row */
@@ -1323,7 +1450,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(5, 7, 18, 0.45);
+  background: rgba(5, 7, 18, 0.45); 
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 999;
@@ -1368,36 +1495,127 @@ body {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* Photo Detail Lightbox Modal (Ultra Thin Padding Border) */
+/* Photo Detail & Map Lightbox Modal (Flexible Viewport & Natural Aspect Ratio Container) */
 .photo-lightbox-modal {
-  padding: 14px !important;
-  max-width: 840px !important;
-  width: 94% !important;
+  padding: 16px !important;
+  width: fit-content !important;
+  min-width: min(340px, 92vw) !important;
+  max-width: 90vw !important;
+  max-height: 92vh !important;
   border-radius: 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  position: relative !important;
+  margin: auto !important;
 }
 
-.photo-lightbox-modal .modal-close-icon {
+.map-lightbox-card {
+  padding: 16px !important;
+  max-width: 860px !important;
+  width: 94% !important;
+  max-height: 92vh !important;
+  border-radius: 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.photo-lightbox-modal .modal-close-icon,
+.map-lightbox-card .modal-close-icon {
   top: 12px;
   right: 12px;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  width: 36px;
+  height: 36px;
+  font-size: 1.1rem;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #FFFFFF;
+  backdrop-filter: blur(10px);
+  transition: opacity 0.2s ease;
+}
+
+.photo-lightbox-modal .modal-close-icon:hover,
+.map-lightbox-card .modal-close-icon:hover {
+  transform: scale(1.05);
+}
+
+.lightbox-image-wrapper {
+  width: 100%;
+  max-width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 14px;
+  display: block;
+}
+
+.lightbox-caption-box {
+  width: 100%;
+  flex: 0 0 auto;
+  margin-top: 12px;
+  text-align: left;
+  max-height: 24vh;
+  overflow-y: auto;
+  padding-right: 4px;
+  box-sizing: border-box;
+}
+
+.lightbox-caption-box::-webkit-scrollbar {
+  width: 5px;
+}
+.lightbox-caption-box::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
 }
 
 @media (max-width: 768px) {
   .photo-lightbox-modal {
-    padding: 8px !important;
+    padding: 10px !important;
+    border-radius: 16px !important;
+    min-width: 92vw !important;
+    max-width: 96vw !important;
+    max-height: 94vh !important;
+  }
+
+  .map-lightbox-card {
+    padding: 10px !important;
     border-radius: 16px !important;
     width: 96% !important;
+    max-height: 94vh !important;
   }
   
-  .photo-lightbox-modal .modal-close-icon {
+  .photo-lightbox-modal .modal-close-icon,
+  .map-lightbox-card .modal-close-icon {
     top: 8px;
     right: 8px;
-    width: 30px;
-    height: 30px;
-    font-size: 0.9rem;
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
   }
 }
 
@@ -1408,11 +1626,24 @@ body {
   justify-content: space-between;
   gap: 12px;
   width: 100%;
+  text-align: left;
+}
+
+.lightbox-title {
+  margin: 0;
+  color: #FFFFFF;
+  font-size: 1.15rem;
+  font-weight: 700;
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
 }
 
 .lightbox-time-badge {
-  font-size: 0.84rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
   background: rgba(255, 255, 255, 0.08);
   padding: 4px 12px;
   border-radius: 20px;
@@ -1425,7 +1656,7 @@ body {
   .lightbox-header-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 6px;
   }
 
   .lightbox-time-badge {
@@ -1450,11 +1681,11 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: opacity 0.2s;
 }
 
 .modal-close-icon:hover {
-  background: rgba(255, 42, 85, 0.4);
+  opacity: 0.85;
 }
 
 .modal-form-title {
@@ -1973,6 +2204,142 @@ body {
 
 .lightbox-photo-caption::-webkit-scrollbar {
   width: 5px;
+}
+
+/* Film Roll Text-Only Wish Letter Card (Màu Lá Thư / Envelope Style) */
+.film-photo.letter-mode {
+  background: transparent;
+}
+
+.film-letter-card {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, #FFFDF9 0%, #F5E8D4 50%, #E9D5B5 100%);
+  border-radius: 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 14px 12px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 14px rgba(160, 110, 50, 0.22);
+}
+
+.film-letter-card::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border: 1px dashed rgba(160, 110, 50, 0.35);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.film-letter-seal {
+  font-size: 1.4rem;
+  margin-bottom: 4px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+}
+
+.film-letter-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #3D2614;
+  margin-bottom: 4px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.film-letter-body {
+  font-size: 0.8rem;
+  color: #5C4331;
+  font-style: italic;
+  line-height: 1.45;
+  margin: 0;
+  padding: 0 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+/* Lightbox Modal Text-Only Letter Card */
+.lightbox-letter-modal-card {
+  width: 100%;
+  max-width: 440px;
+  background: linear-gradient(145deg, #FFFDF9 0%, #F5E8D4 50%, #E9D5B5 100%);
+  border-radius: 16px;
+  padding: 32px 24px;
+  box-sizing: border-box;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45), inset 0 0 20px rgba(180, 140, 90, 0.3);
+  border: 1px solid #D8C4A0;
+  position: relative;
+  margin: 0 auto;
+}
+
+.lightbox-letter-modal-card::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 1px dashed rgba(160, 110, 50, 0.35);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.letter-modal-seal {
+  font-size: 2.8rem;
+  margin-bottom: 8px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.letter-modal-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #3D2614;
+  margin: 0 0 4px 0;
+}
+
+.letter-modal-time {
+  font-size: 0.8rem;
+  color: #8C6F56;
+  margin-bottom: 4px;
+}
+
+.letter-modal-divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #C4A882, transparent);
+  margin: 10px 0 16px 0;
+}
+
+.letter-modal-content {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: #4A3320;
+  font-style: italic;
+  margin: 0;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .lightbox-photo-caption::-webkit-scrollbar-thumb {

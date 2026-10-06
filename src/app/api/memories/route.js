@@ -13,9 +13,10 @@ cloudinary.config({
 const defaultMemories = siteConfig.defaultMemories;
 const googleScriptUrl = siteConfig.googleScriptUrl;
 
-// In-memory cache to prevent duplicate upload requests (5 minute window)
+// In-memory cache to prevent duplicate upload requests & store text-only memories
 const recentMemories = new Map();
 const recentImageUrls = new Map();
+const localTextMemories = [];
 
 function isDuplicateMemory(key) {
   const now = Date.now();
@@ -46,11 +47,22 @@ function isDuplicateImageUrl(url) {
 function filterUniqueMemories(memoriesList) {
   if (!Array.isArray(memoriesList)) return [];
   const seenUrls = new Set();
+  const seenTextKeys = new Set();
   return memoriesList.filter((m) => {
+    if (!m) return false;
     const url = formatImageUrl(m.imageUrl || m.image);
-    if (!url) return true;
-    if (seenUrls.has(url)) return false;
-    seenUrls.add(url);
+    if (url) {
+      if (seenUrls.has(url)) return false;
+      seenUrls.add(url);
+      return true;
+    }
+    const nameStr = (m.name || m.title || '').toString().trim().toLowerCase();
+    const captionStr = (m.caption || '').toString().trim().toLowerCase();
+    if (!nameStr && !captionStr) return false;
+
+    const key = m.id ? `id_${m.id}` : `text_${nameStr}_${captionStr}`;
+    if (seenTextKeys.has(key)) return false;
+    seenTextKeys.add(key);
     return true;
   });
 }
@@ -84,14 +96,14 @@ export async function GET() {
       console.error('Apps Script getMemories returned error status:', response.status);
     }
 
-    // Combine user uploaded memories with default ones to ensure rolls are rich
+    // Combine user uploaded memories, in-memory text memories, and default ones
     const formattedDefaults = defaultMemories.map((m) => ({ ...m, imageUrl: formatImageUrl(m.imageUrl) }));
-    const combined = filterUniqueMemories([...userMemories, ...formattedDefaults]);
+    const combined = filterUniqueMemories([...userMemories, ...localTextMemories, ...formattedDefaults]);
     return NextResponse.json({ success: true, memories: combined });
   } catch (error) {
     console.error('Error fetching memories from Apps Script:', error);
     // Fallback to default memories if offline
-    return NextResponse.json({ success: true, memories: filterUniqueMemories(defaultMemories) });
+    return NextResponse.json({ success: true, memories: filterUniqueMemories([...localTextMemories, ...defaultMemories]) });
   }
 }
 
@@ -103,17 +115,66 @@ export async function POST(request) {
       const singleFile = formData.get('image');
       if (singleFile) files = [singleFile];
     }
-    const name = formData.get('name');
-    const caption = formData.get('caption');
+    const name = (formData.get('name') || 'Người bạn thân').toString();
+    const caption = (formData.get('caption') || '').toString();
 
-    if (!files || files.length === 0) {
-      return NextResponse.json({ success: false, message: 'Chưa có ảnh nào được gửi!' }, { status: 400 });
+    let currentTimestamp = '';
+    try {
+      currentTimestamp = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    } catch (e) {
+      currentTimestamp = new Date().toLocaleString();
     }
+
+    // Handle text-only wishes (no image uploaded)
+    const validFiles = files.filter(f => f && typeof f !== 'string' && f.size > 0);
+    if (validFiles.length === 0) {
+      const textMemory = {
+        id: `text_${Date.now()}`,
+        name,
+        caption,
+        imageUrl: '',
+        image: '',
+        timestamp: currentTimestamp,
+        time: currentTimestamp
+      };
+      localTextMemories.unshift(textMemory);
+
+      const params = new URLSearchParams({
+        action: 'saveMemory',
+        name,
+        caption,
+        image: '',
+        time: currentTimestamp,
+        timestamp: currentTimestamp
+      });
+
+      let scriptMemories = [];
+      try {
+        const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          redirect: 'follow'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.memories) {
+            scriptMemories = data.memories;
+          }
+        }
+      } catch (errScript) {
+        console.error('Apps Script saveMemory call error:', errScript);
+      }
+
+      const combined = filterUniqueMemories([textMemory, ...scriptMemories, ...localTextMemories, ...defaultMemories]);
+      return NextResponse.json({ success: true, memories: combined });
+    }
+
+    files = validFiles;
 
     const dupKey = `${name.trim().toLowerCase()}_${caption.trim().toLowerCase()}_${files.map(f => f.size).join('_')}`;
     if (isDuplicateMemory(dupKey)) {
       console.log(`[Deduplication] Duplicate memory upload ignored for: ${name}`);
-      // Fetch current memories to return
       return GET();
     }
 

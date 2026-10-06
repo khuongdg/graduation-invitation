@@ -40,7 +40,7 @@ export default function CeremonySection({ onOpenModal }) {
     <section className="invitation-card">
       {/* Graduation cap badge icon */}
       <div className="invitation-badge-icon">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF2A55" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00F0FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
           <path d="M6 12v5c3 3 9 3 12 0v-5"/>
         </svg>

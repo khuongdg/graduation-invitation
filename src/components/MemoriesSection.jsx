@@ -76,12 +76,14 @@ export default function MemoriesSection({
                 </div>
 
                 <div className="glass-input-group">
-                  <label className="glass-input-label">Chọn ảnh kỷ niệm</label>
+                  <label className="glass-input-label">
+                    Chọn ảnh kỷ niệm <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>(Tùy chọn)</span>
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
                     multiple
-                    required={uploadData.images.length === 0}
+                    required={false}
                     onChange={onFileChange}
                     className="glass-input-field"
                     style={{ padding: '8px' }}
@@ -97,7 +99,7 @@ export default function MemoriesSection({
                 )}
 
                 <button type="submit" className="glass-submit-btn" disabled={uploadState === 'loading'}>
-                  {uploadState === 'loading' ? 'Đang tải lên...' : 'Gửi Ảnh Lên Cuộn Phim 🚀'}
+                  {uploadState === 'loading' ? 'Đang gửi...' : 'Gửi Lời Chúc / Kỷ Niệm 🚀'}
                 </button>
               </form>
             </>
@@ -123,7 +125,7 @@ export default function MemoriesSection({
 
               <h3 className="success-modal-title">Gửi thành công!</h3>
               <p className="success-modal-desc">
-                Ảnh/Lời chúc của bạn đã được đưa lên cuộn phim kỷ niệm! 🎞️✨
+                Lời chúc/Ảnh của bạn đã được đưa lên cuộn phim kỷ niệm! 🎞️✨
               </p>
               <button className="glass-submit-btn success-btn-anim" onClick={onCloseUploadModal}>
                 Đóng
@@ -133,57 +135,62 @@ export default function MemoriesSection({
         </div>
       </div>
 
-      {/* Photo Lightbox Popup */}
+      {/* Photo / Letter Lightbox Popup */}
       {selectedPhoto && (
         <div className="glass-modal-overlay open" onClick={() => setSelectedPhoto(null)} style={{ zIndex: 10000 }}>
           <div className="glass-modal-content photo-lightbox-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close-icon" onClick={() => setSelectedPhoto(null)}>✕</button>
-            <div style={{
-              width: '100%',
-              maxHeight: '78vh',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '14px',
-              overflow: 'hidden',
-              background: 'rgba(0, 0, 0, 0.4)'
-            }}>
-              <img
-                src={selectedPhoto.imageUrl || selectedPhoto.image}
-                alt={selectedPhoto.name || selectedPhoto.title}
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '78vh',
-                  width: 'auto',
-                  height: 'auto',
-                  objectFit: 'contain',
-                  borderRadius: '14px',
-                  display: 'block'
-                }}
-              />
-            </div>
-            {(selectedPhoto.name || selectedPhoto.title || selectedPhoto.caption) && (
-              <div style={{ marginTop: '16px', textAlign: 'left' }}>
-                <div className="lightbox-header-row">
-                  {(selectedPhoto.name || selectedPhoto.title) && (
-                    <h4 style={{ margin: 0, color: '#FFF', fontSize: '1.2rem', wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span>💌</span>
-                      <span>{selectedPhoto.name || selectedPhoto.title}</span>
-                    </h4>
-                  )}
 
-                  {(selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt) && (
-                    <span className="lightbox-time-badge">
-                      {selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt}
-                    </span>
-                  )}
+            {(selectedPhoto.imageUrl || selectedPhoto.image) ? (
+              <>
+                <div className="lightbox-image-wrapper">
+                  <img
+                    src={selectedPhoto.imageUrl || selectedPhoto.image}
+                    alt={selectedPhoto.name || selectedPhoto.title || 'Kỷ niệm'}
+                    className="lightbox-image"
+                  />
                 </div>
+                {(selectedPhoto.name || selectedPhoto.title || selectedPhoto.caption) && (
+                  <div className="lightbox-caption-box">
+                    <div className="lightbox-header-row">
+                      {(selectedPhoto.name || selectedPhoto.title) && (
+                        <h4 className="lightbox-title">
+                          <span>💌</span>
+                          <span>{selectedPhoto.name || selectedPhoto.title}</span>
+                        </h4>
+                      )}
 
-                {selectedPhoto.caption && (
-                  <p className="lightbox-photo-caption" style={{ marginTop: (selectedPhoto.name || selectedPhoto.title) ? '8px' : '0px' }}>
-                    “{selectedPhoto.caption}”
-                  </p>
+                      {(selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt) && (
+                        <span className="lightbox-time-badge">
+                          {selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt}
+                        </span>
+                      )}
+                    </div>
+
+                    {selectedPhoto.caption && (
+                      <p className="lightbox-photo-caption">
+                        “{selectedPhoto.caption}”
+                      </p>
+                    )}
+                  </div>
                 )}
+              </>
+            ) : (
+              /* Text-Only Wish Letter Card View */
+              <div className="lightbox-letter-modal-card">
+                <div className="letter-modal-seal">💌</div>
+                <h3 className="letter-modal-title">
+                  {selectedPhoto.name || selectedPhoto.title || 'Người bạn thân'}
+                </h3>
+                {(selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt) && (
+                  <span className="letter-modal-time">
+                    {selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt}
+                  </span>
+                )}
+                <div className="letter-modal-divider" />
+                <p className="letter-modal-content">
+                  “{selectedPhoto.caption || ''}”
+                </p>
               </div>
             )}
           </div>

@@ -26,10 +26,15 @@ export default function MapSection() {
 
   return (
     <section className="map-section">
-      <h2 style={{ fontSize: '2rem', color: '#FFF', margin: '0 0 8px 0', textAlign: 'center' }}>{map.title}</h2>
-      <p style={{ color: 'rgba(255,255,255,0.75)', textAlign: 'center', margin: '0 0 24px 0', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
-        {map.address}
-      </p>
+      <h2 style={{ fontSize: '2rem', color: '#FFF', margin: '0 0 10px 0', textAlign: 'center' }}>{map.title}</h2>
+      <div style={{ textAlign: 'center', margin: '0 0 24px 0' }}>
+        <h3 style={{ fontSize: '1.25rem', color: '#53cef0ff', fontWeight: '700', margin: '0 0 4px 0' }}>
+          {map.schoolName || 'Trường Đại học Tôn Đức Thắng'}
+        </h3>
+        <p style={{ color: 'rgba(255,255,255,0.85)', margin: 0, fontSize: '0.95rem' }}>
+          {map.addressDetail || 'Số 19 đường Nguyễn Hữu Thọ, Phường Tân Hưng, Tp. Hồ Chí Minh'}
+        </p>
+      </div>
 
       {/* Clickable Map Image with Hint Badge */}
       <div 

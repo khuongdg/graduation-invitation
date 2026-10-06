@@ -23,13 +23,8 @@ export default function HeroSection({ heroRef, parallaxOffset, onBeginJourney, o
         </button>
       </div> */}
 
-      {/* Center Content Layer with Parallax depth */}
-      <div
-        className="hero-content-layer"
-        style={{
-          transform: `translate(${parallaxOffset.x * 12}px, ${parallaxOffset.y * 12}px)`
-        }}
-      >
+      {/* Center Content Layer */}
+      <div className="hero-content-layer">
         {/* Circular Liquid Glass Ring surrounding TDTU Logo */}
         <div className="hero-logo-ring">
           <img src={candidate.logoUrl} alt={`${candidate.schoolShort} Logo`} className="hero-tdtu-logo" />

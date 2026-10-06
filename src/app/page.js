@@ -24,14 +24,68 @@ export default function Home() {
   // Admin Auth Pop-up State
   const [isAdminAuthOpen, setIsAdminAuthOpen] = useState(false);
 
-  // 3D Photo Globe Modal State
+  // 3D Photo Globe Modal State (Persisted across Page Reloads & URL Hash #globe)
   const [isGlobeOpen, setIsGlobeOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasHash = window.location.hash === '#globe';
+      const hasSession = sessionStorage.getItem('isGlobeOpen') === 'true';
+      if (hasHash || hasSession) {
+        setIsGlobeOpen(true);
+        if (!hasHash) {
+          window.history.replaceState(null, '', '#globe');
+        }
+      }
+    }
+  }, []);
+
+  const handleOpenGlobe = () => {
+    setIsGlobeOpen(true);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('isGlobeOpen', 'true');
+      if (window.location.hash !== '#globe') {
+        window.history.pushState(null, '', '#globe');
+      }
+    }
+  };
+
+  const handleCloseGlobe = () => {
+    setIsGlobeOpen(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('isGlobeOpen');
+      if (window.location.hash === '#globe') {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#globe') {
+        setIsGlobeOpen(true);
+      } else {
+        setIsGlobeOpen(false);
+        sessionStorage.removeItem('isGlobeOpen');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
+    };
+  }, []);
 
   // Global Parallax mouse depth tracking across full window
   const [parallaxOffset, setParallaxOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleGlobalMouseMove = (e) => {
+      if (typeof window !== 'undefined' && window.matchMedia && !window.matchMedia('(pointer: fine)').matches) {
+        return;
+      }
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
       const mouseX = (e.clientX - centerX) / (window.innerWidth / 2);
@@ -169,17 +223,19 @@ export default function Home() {
   const handleUploadSubmit = async (e) => {
     e.preventDefault();
     if (isUploadingRef.current || uploadState === 'loading' || uploadState === 'success') return;
-    if (!uploadData.images || uploadData.images.length === 0) {
-      alert('Vui lòng chọn ít nhất một bức ảnh kỷ niệm! 📸');
+    if (!uploadData.name.trim() || !uploadData.caption.trim()) {
+      alert('Vui lòng nhập tên và lời chúc/kỷ niệm của bạn! 💌');
       return;
     }
     isUploadingRef.current = true;
     setUploadState('loading');
 
     const bodyFormData = new FormData();
-    uploadData.images.forEach((file) => {
-      bodyFormData.append('images', file);
-    });
+    if (uploadData.images && uploadData.images.length > 0) {
+      uploadData.images.forEach((file) => {
+        bodyFormData.append('images', file);
+      });
+    }
     bodyFormData.append('name', uploadData.name);
     bodyFormData.append('caption', uploadData.caption);
 
@@ -284,7 +340,7 @@ export default function Home() {
 
         <JourneySection
           section2Ref={section2Ref}
-          onOpenGlobeModal={() => setIsGlobeOpen(true)}
+          onOpenGlobeModal={handleOpenGlobe}
           onScrollToMemories={handleScrollToMemories}
           photos={journeyPhotos}
           onPhotoClick={(p) => setSelectedPhoto(p)}
@@ -334,7 +390,7 @@ export default function Home() {
       {/* 3D Photo Globe Modal for Section 2 (My Journey) */}
       <JourneyGlobeModal
         isOpen={isGlobeOpen}
-        onClose={() => setIsGlobeOpen(false)}
+        onClose={handleCloseGlobe}
         photos={journeyPhotos}
       />
     </>

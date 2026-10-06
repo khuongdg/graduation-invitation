@@ -540,15 +540,17 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
           zIndex: 5
         }}
       >
-        {/* Glowing 3D Central White Core Sphere with TDTU Logo */}
+        {/* Glowing 3D Central Transparent Liquid Glass Sphere with TDTU Logo */}
         <div style={{
           position: 'absolute',
           width: `${coreDiameter}px`,
           height: `${coreDiameter}px`,
           borderRadius: '50%',
-          background: 'radial-gradient(circle at 35% 35%, #FFFFFF 0%, #F1F5F9 50%, #E2E8F0 100%)',
-          boxShadow: '0 0 90px rgba(255, 255, 255, 0.85), inset 0 0 40px rgba(0, 240, 255, 0.35), 0 0 50px rgba(0, 240, 255, 0.5)',
-          border: '2px solid rgba(255, 255, 255, 0.95)',
+          background: 'radial-gradient(circle at 32% 32%, rgba(255, 255, 255, 0.25) 0%, rgba(0, 240, 255, 0.08) 55%, rgba(10, 15, 35, 0.35) 100%)',
+          backdropFilter: 'blur(12px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(12px) saturate(160%)',
+          boxShadow: '0 0 50px rgba(0, 240, 255, 0.35), inset 0 2px 5px rgba(255, 255, 255, 0.6), inset 0 -6px 18px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 255, 255, 0.2)',
+          border: '1.5px solid rgba(255, 255, 255, 0.55)',
           pointerEvents: 'none',
           animation: 'globePulse 4s infinite alternate ease-in-out',
           display: 'flex',
@@ -562,7 +564,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
               width: '68%',
               height: '68%',
               objectFit: 'contain',
-              filter: 'drop-shadow(0 0 8px rgba(0, 240, 255, 0.6))'
+              filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 20px rgba(0, 240, 255, 0.6))'
             }}
           />
           <div style={{
@@ -767,33 +769,16 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
           <div className="glass-modal-content photo-lightbox-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close-icon" onClick={() => setSelectedPhoto(null)}>✕</button>
 
-            <div style={{
-              width: '100%',
-              maxHeight: '78vh',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '14px',
-              overflow: 'hidden',
-              background: 'rgba(0, 0, 0, 0.4)'
-            }}>
+            <div className="lightbox-image-wrapper">
               <img
                 src={formatImageUrl(selectedPhoto.imageUrl || selectedPhoto.image)}
                 alt={selectedPhoto.title || selectedPhoto.name || 'Kỷ niệm'}
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '78vh',
-                  width: 'auto',
-                  height: 'auto',
-                  objectFit: 'contain',
-                  borderRadius: '14px',
-                  display: 'block'
-                }}
+                className="lightbox-image"
               />
             </div>
 
             {(selectedPhoto.title || selectedPhoto.name || selectedPhoto.caption) && (
-              <div style={{ marginTop: '16px', textAlign: 'left' }}>
+              <div className="lightbox-caption-box">
                 <div className="lightbox-header-row">
                   {(selectedPhoto.title || selectedPhoto.name) && (
                     <h4 style={{ margin: 0, color: '#FFF', fontSize: '1.2rem', wordBreak: 'break-word', display: 'flex', alignItems: 'center', gap: '8px' }}>

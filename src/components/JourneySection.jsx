@@ -28,16 +28,48 @@ export default function JourneySection({ section2Ref, onOpenGlobeModal, onScroll
           <span className="journey-title-serif">at TDTU</span>
         </h2>
 
-        <div className="journey-description">
-          <p>
-            Từ một tân sinh viên còn nhiều bỡ ngỡ, mình đã trải qua những năm tháng thanh xuân tại TDTU. Mình đã có cơ hội được gặp những người bạn mới, mình luôn trân trọng những "người thuơng" đã ở bên cạnh dù hoản cảnh thế nào. 
-          </p>
-          <p>
-            Cảm ơn thầy cô đã hướng dẫn, đồng hành suốt những năm tháng tại trường. Cảm ơn những người bạn dù có khoảng thời gian đồng hành cùng nhau ngắn nhưng tất cả đều là những hồi ức tuổi trẻ được mình ghi nhớ mãi.         
-          </p>
-          <p>
-            Biết ơn cha mẹ, gia đình những người đã nuôi dưỡng con từ bé cho đến ngày hôm nay, đã dạy những bài học đầu đời cho đến khi tiếp bước cho con có những bài học tại TDTU.
-          </p>
+        {/* Vertical Memory Timeline (Timeline Hồi Ức Dọc) */}
+        <div className="journey-timeline">
+          <div className="journey-timeline-line" />
+
+          {/* Timeline Node 1: Thanh Xuân & Bạn Bè */}
+          <div className="journey-timeline-item">
+            <div className="timeline-node-icon amber-glow">🌸</div>
+            <div className="timeline-content-card">
+              <div className="timeline-card-tag tag-amber">
+                <span>01. Thanh xuân & Bạn bè</span>
+              </div>
+              <p className="timeline-card-text">
+                Từ một tân sinh viên còn nhiều bỡ ngỡ, mình đã trải qua những năm tháng thanh xuân tuyệt đẹp tại <strong className="highlight-text-amber">TDTU</strong>. Mình đã có cơ hội được gặp những người bạn mới, luôn trân trọng những <strong className="highlight-text-amber">"người thương"</strong> đã ở bên cạnh dù hoàn cảnh thế nào.
+              </p>
+            </div>
+          </div>
+
+          {/* Timeline Node 2: Tri Ân Thầy Cô */}
+          <div className="journey-timeline-item">
+            <div className="timeline-node-icon blue-glow">🏫</div>
+            <div className="timeline-content-card">
+              <div className="timeline-card-tag tag-blue">
+                <span>02. Tri ân Thầy Cô</span>
+              </div>
+              <p className="timeline-card-text">
+                Cảm ơn <strong className="highlight-text-blue">thầy cô</strong> đã hướng dẫn, đồng hành suốt những năm tháng tại trường. Cảm ơn những người bạn dù có khoảng thời gian đồng hành cùng nhau ngắn nhưng tất cả đều là những <strong className="highlight-text-blue">hồi ức tuổi trẻ</strong> được mình ghi nhớ mãi.
+              </p>
+            </div>
+          </div>
+
+          {/* Timeline Node 3: Điểm Tựa Gia Đình */}
+          <div className="journey-timeline-item">
+            <div className="timeline-node-icon pink-glow">❤️</div>
+            <div className="timeline-content-card">
+              <div className="timeline-card-tag tag-pink">
+                <span>03. Điểm tựa Gia đình</span>
+              </div>
+              <p className="timeline-card-text">
+                Biết ơn <strong className="highlight-text-pink">cha mẹ & gia đình</strong> - những người đã nuôi dưỡng con từ bé cho đến ngày hôm nay, đã dạy những bài học đầu đời cho đến khi tiếp bước cho con có những thành quả tại TDTU.
+              </p>
+            </div>
+          </div>
         </div>
 
         <button className="btn-pill-dark" onClick={onOpenGlobeModal || onScrollToMemories}>

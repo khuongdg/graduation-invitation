@@ -128,9 +128,12 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
   // Touch Handlers (Mobile)
   const handleTouchStart = (e) => {
     isDraggingRef.current = true;
-    isHoveredRef.current = true;
+    isHoveredRef.current = false;
     if (e.touches && e.touches[0]) {
       startXRef.current = e.touches[0].clientX;
+      if (containerRef.current) {
+        scrollLeftRef.current = containerRef.current.scrollLeft;
+      }
     }
     moveDistRef.current = 0;
     if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
@@ -145,14 +148,12 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
 
   const handleTouchEnd = () => {
     isDraggingRef.current = false;
+    isHoveredRef.current = false;
     if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
-    touchTimerRef.current = setTimeout(() => {
-      isHoveredRef.current = false;
-    }, 1500);
   };
 
-  const handleMouseEnter = (e) => {
-    if (e.pointerType !== 'touch') {
+  const handleMouseEnter = () => {
+    if (typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
       isHoveredRef.current = true;
     }
   };
@@ -188,7 +189,7 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
                   Chưa có ảnh kỷ niệm nào
                 </div>
                 <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', marginTop: '4px' }}>
-                  Bấm nút "+ Add Memory" phía trên để chia sẻ bức ảnh đầu tiên nhé! ✨
+                  Bấm nút "+ Thêm kỷ niệm" phía trên để chia sẻ bức ảnh đầu tiên nhé! ✨
                 </div>
               </div>
             </div>
@@ -215,21 +216,40 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
         onTouchCancel={handleTouchEnd}
       >
         <div className="film-strip">
-          {repeatedMemories.map((m, idx) => (
-            <div
-              className="film-frame"
-              key={`${direction}-${m?.id || idx}-${idx}`}
-              onClick={() => handlePhotoItemClick(m)}
-            >
-              <div className="film-photo">
-                <img src={formatImageUrl(m?.imageUrl || m?.image || '/assets/test.JPG')} alt={m?.name || m?.title || 'Kỷ niệm'} draggable={false} />
-                <div className="film-photo-info">
-                  <span className="film-photo-name">{m?.name || m?.title || 'Kỷ niệm'}</span>
-                  <span className="film-photo-caption">{m?.caption || ''}</span>
+          {repeatedMemories.map((m, idx) => {
+            const hasImage = Boolean(m?.imageUrl || m?.image);
+            return (
+              <div
+                className="film-frame"
+                key={`${direction}-${m?.id || idx}-${idx}`}
+                onClick={() => handlePhotoItemClick(m)}
+              >
+                <div className={`film-photo ${!hasImage ? 'letter-mode' : ''}`}>
+                  {hasImage ? (
+                    <>
+                      <img
+                        src={formatImageUrl(m?.imageUrl || m?.image)}
+                        alt={m?.name || m?.title || 'Kỷ niệm'}
+                        draggable={false}
+                      />
+                      <div className="film-photo-info">
+                        <span className="film-photo-name">{m?.name || m?.title || 'Kỷ niệm'}</span>
+                        <span className="film-photo-caption">{m?.caption || ''}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="film-letter-card">
+                      <span className="film-letter-seal">💌</span>
+                      <span className="film-letter-name">{m?.name || m?.title || 'Lời chúc'}</span>
+                      <p className="film-letter-body">
+                        {m?.caption ? `“${m.caption}”` : 'Lời chúc kỷ niệm'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

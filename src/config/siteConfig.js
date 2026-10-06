@@ -9,7 +9,7 @@ export const siteConfig = {
     name: 'DƯƠNG NHỰT KHƯƠNG',
     shortName: 'Khương Dương',
     classYear: 'Class of 2026',
-    major: '🎓 Tân cử nhân Kỹ thuật phần mềm',
+    major: 'Tân cử nhân ngành Kỹ thuật phần mềm',
     school: 'Trường Đại học Tôn Đức Thắng',
     schoolShort: 'TDTU',
     quote: '“Every ending is the beginning of something new.”',
@@ -35,6 +35,8 @@ export const siteConfig = {
   // Location / Map section details
   map: {
     title: 'Địa điểm',
+    schoolName: 'Trường Đại học Tôn Đức Thắng',
+    addressDetail: 'Số 19 đường Nguyễn Hữu Thọ, Phường Tân Hưng, Tp. Hồ Chí Minh',
     address: 'Trường Đại học Tôn Đức Thắng, số 19 đường Nguyễn Hữu Thọ, Phường Tân Hưng, Tp. Hồ Chí Minh',
     image: '/assets/tdtu_mapv1.png',
     googleMapsUrl: 'https://maps.app.goo.gl/cArjxhpeoDLT8NC49',
@@ -72,10 +74,5 @@ export const siteConfig = {
   },
 
   // Default Memory Wall fallbacks
-  defaultMemories: [
-    { id: 1, name: 'Nhóm bạn thân', caption: 'Tình bạn diệu kỳ, luôn rạng rỡ nhé!', imageUrl: '/default_memories/memory_grad_chibi.png' },
-    { id: 2, name: 'Cả lớp cử nhân', caption: 'Tung bay những ước mơ!', imageUrl: '/default_memories/memory_grad_cap.png' },
-    { id: 3, name: 'Khương & Tấm bằng', caption: 'Chúc Khương thành công trên con đường mới!', imageUrl: '/default_memories/memory_grad_solo.png' },
-    { id: 4, name: 'Thầy cô & Bạn bè', caption: 'Kỷ niệm đẹp đẽ thời sinh viên!', imageUrl: '/default_memories/memory_grad_group.png' }
-  ]
+  defaultMemories: []
 };
