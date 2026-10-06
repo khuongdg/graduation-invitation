@@ -13,6 +13,8 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
   const moveDistRef = useRef(0);
   const touchTimerRef = useRef(null);
 
+  const scrollPosRef = useRef(0);
+
   const safeMemories = Array.isArray(memories) ? memories : [];
   const displayMemories = direction === 'rtl' ? [...safeMemories].reverse() : safeMemories;
 
@@ -29,44 +31,68 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     const container = containerRef.current;
     if (!container) return;
 
-    const setInitialScroll = () => {
-      const setWidth = container.scrollWidth / 3;
-      if (setWidth > 0 && (container.scrollLeft === 0 || isNaN(container.scrollLeft))) {
-        container.scrollLeft = setWidth;
+    let lastTime = null;
+
+    const getSetWidth = () => {
+      if (!container) return 0;
+      return container.scrollWidth / 3;
+    };
+
+    const ensureValidScrollPos = () => {
+      const setWidth = getSetWidth();
+      if (setWidth > 0) {
+        if (container.scrollLeft <= 5 || isNaN(container.scrollLeft)) {
+          container.scrollLeft = setWidth;
+          scrollPosRef.current = setWidth;
+        }
       }
     };
 
-    setInitialScroll();
-    const timer = setTimeout(setInitialScroll, 300);
+    ensureValidScrollPos();
+    const t1 = setTimeout(ensureValidScrollPos, 100);
+    const t2 = setTimeout(ensureValidScrollPos, 400);
+    const t3 = setTimeout(ensureValidScrollPos, 1000);
 
-    const speed = direction === 'ltr' ? 0.8 : -0.8;
+    const animate = (timestamp) => {
+      if (!lastTime) lastTime = timestamp;
+      const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+      lastTime = timestamp;
 
-    const animate = () => {
-      const isMobileTouch =
+      // Reliable Touch Device Detection across iOS / iPad OS / Android
+      const isTouchDevice =
         typeof window !== 'undefined' &&
-        window.matchMedia &&
-        window.matchMedia('(pointer: coarse)').matches;
+        ('ontouchstart' in window ||
+          (navigator && navigator.maxTouchPoints > 0) ||
+          (window.matchMedia && window.matchMedia('(pointer: coarse)').matches));
 
-      const shouldPause = isDraggingRef.current || (!isMobileTouch && isHoveredRef.current);
+      // Never let hover freeze touch devices (iOS hover bug fix)
+      const shouldPause = isDraggingRef.current || (!isTouchDevice && isHoveredRef.current);
 
       if (container && !shouldPause) {
-        if (isNaN(container.scrollLeft)) {
-          container.scrollLeft = container.scrollWidth / 3;
-        }
-
-        container.scrollLeft += speed;
-
-        const totalWidth = container.scrollWidth;
-        const setWidth = totalWidth / 3;
-
-        if (setWidth > 0 && !isNaN(container.scrollLeft)) {
-          if (container.scrollLeft >= setWidth * 2) {
-            container.scrollLeft -= setWidth;
-          } else if (container.scrollLeft <= 0) {
-            container.scrollLeft += setWidth;
+        const setWidth = getSetWidth();
+        if (setWidth > 0) {
+          // Sync with native scroll if user touched or scrolled manually
+          if (Math.abs(scrollPosRef.current - container.scrollLeft) > 8) {
+            scrollPosRef.current = container.scrollLeft;
           }
+
+          // Move step: 45 pixels / second (smooth & natural)
+          const step = (direction === 'ltr' ? 45 : -45) * dt;
+          scrollPosRef.current += step;
+
+          // Seamless loop check
+          if (scrollPosRef.current >= setWidth * 2) {
+            scrollPosRef.current -= setWidth;
+          } else if (scrollPosRef.current <= setWidth * 0.1) {
+            scrollPosRef.current += setWidth;
+          }
+
+          container.scrollLeft = scrollPosRef.current;
         }
+      } else if (container) {
+        scrollPosRef.current = container.scrollLeft;
       }
+
       animFrameRef.current = requestAnimationFrame(animate);
     };
 
@@ -75,7 +101,9 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
-      clearTimeout(timer);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
     };
   }, [direction, safeMemories]);
 
@@ -83,14 +111,15 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
   const handleScroll = () => {
     const container = containerRef.current;
     if (!container) return;
-    const totalWidth = container.scrollWidth;
-    const setWidth = totalWidth / 3;
+    const setWidth = container.scrollWidth / 3;
 
     if (setWidth > 0 && !isNaN(container.scrollLeft)) {
       if (container.scrollLeft >= setWidth * 2) {
         container.scrollLeft -= setWidth;
-      } else if (container.scrollLeft <= 0) {
+        scrollPosRef.current = container.scrollLeft;
+      } else if (container.scrollLeft <= 5) {
         container.scrollLeft += setWidth;
+        scrollPosRef.current = container.scrollLeft;
       }
     }
   };
@@ -130,6 +159,7 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     const walk = (x - startXRef.current) * 1.5;
     moveDistRef.current += Math.abs(walk);
     container.scrollLeft = scrollLeftRef.current - walk;
+    scrollPosRef.current = container.scrollLeft;
   };
 
   // Touch Handlers (Mobile)
@@ -140,6 +170,7 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
       startXRef.current = e.touches[0].clientX;
       if (containerRef.current) {
         scrollLeftRef.current = containerRef.current.scrollLeft;
+        scrollPosRef.current = containerRef.current.scrollLeft;
       }
     }
     moveDistRef.current = 0;
@@ -160,15 +191,17 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     touchTimerRef.current = setTimeout(() => {
       isDraggingRef.current = false;
       isHoveredRef.current = false;
-    }, 400);
+    }, 300);
   };
 
   const handleMouseEnter = () => {
-    if (
+    const isTouchDevice =
       typeof window !== 'undefined' &&
-      window.matchMedia &&
-      window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    ) {
+      ('ontouchstart' in window ||
+        (navigator && navigator.maxTouchPoints > 0) ||
+        (window.matchMedia && window.matchMedia('(pointer: coarse)').matches));
+
+    if (!isTouchDevice) {
       isHoveredRef.current = true;
     }
   };
