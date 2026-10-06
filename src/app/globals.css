@@ -3001,8 +3001,8 @@ body {
 .admin-page-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #060711;
-  color: #FFFFFF;
+  background-color: #F1F5F9;
+  color: #0F172A;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
@@ -3059,31 +3059,40 @@ body {
     padding: 12px 16px;
     height: 53px;
     box-sizing: border-box;
-    background: rgba(10, 12, 28, 0.95);
-    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 200;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   }
 
   .admin-mobile-toggle-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 8px 14px;
     border-radius: 12px;
-    background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(112, 0, 255, 0.2));
-    border: 1px solid #00F0FF;
-    color: #00F0FF;
+    background: #31436F;
+    border: 1px solid #25355A;
+    color: #FFFFFF;
     font-size: 0.88rem;
     font-weight: 700;
+    line-height: 1;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.25);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
+  }
+
+  .admin-mobile-toggle-btn:hover,
+  .admin-mobile-toggle-btn:focus,
+  .admin-mobile-toggle-btn:active {
+    background: #3B5084;
+    border-color: #4A639F;
+    color: #FFFFFF;
   }
 
   .admin-mobile-backdrop {
@@ -3178,6 +3187,32 @@ body {
   margin-bottom: 20px;
 }
 
+/* ADMIN RSVP TOOLBAR & DROPDOWN STYLES */
+.admin-rsvp-filter-select {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-rsvp-filter-select:focus {
+  outline: none;
+  border-color: #34D399 !important;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25) !important;
+}
+
+.admin-rsvp-search-input:focus {
+  outline: none;
+  border-color: #34D399 !important;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25) !important;
+}
+
+.admin-desktop-table-view {
+  display: block;
+}
+
+.admin-mobile-cards-view {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .admin-photos-grid {
     grid-template-columns: 1fr !important;
@@ -3188,6 +3223,38 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+  }
+
+  .admin-rsvp-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .admin-rsvp-toolbar-left {
+    flex-direction: column !important;
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  .admin-rsvp-search-input,
+  .admin-rsvp-filter-select,
+  .admin-rsvp-export-btn {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .admin-list-card {
+    padding: 16px 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .admin-desktop-table-view {
+    display: none !important;
+  }
+
+  .admin-mobile-cards-view {
+    display: block !important;
   }
 }
 

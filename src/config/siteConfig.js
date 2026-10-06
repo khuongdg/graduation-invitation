@@ -23,7 +23,7 @@ export const siteConfig = {
     mainTitleHighlight: 'Ceremony',
     day: '17',
     monthYear: 'OCTOBER 2026',
-    time: '08:00',
+    time: '09:00 - 11:30',
     period: 'AM',
     targetDate: '2026-10-17T08:00:00',
     locationHall: 'HALL A',

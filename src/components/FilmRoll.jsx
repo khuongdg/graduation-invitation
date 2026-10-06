@@ -42,7 +42,14 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     const speed = direction === 'ltr' ? 0.8 : -0.8;
 
     const animate = () => {
-      if (container && !isDraggingRef.current && !isHoveredRef.current) {
+      const isMobileTouch =
+        typeof window !== 'undefined' &&
+        window.matchMedia &&
+        window.matchMedia('(pointer: coarse)').matches;
+
+      const shouldPause = isDraggingRef.current || (!isMobileTouch && isHoveredRef.current);
+
+      if (container && !shouldPause) {
         if (isNaN(container.scrollLeft)) {
           container.scrollLeft = container.scrollWidth / 3;
         }
@@ -150,10 +157,18 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
     isDraggingRef.current = false;
     isHoveredRef.current = false;
     if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    touchTimerRef.current = setTimeout(() => {
+      isDraggingRef.current = false;
+      isHoveredRef.current = false;
+    }, 400);
   };
 
   const handleMouseEnter = () => {
-    if (typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    ) {
       isHoveredRef.current = true;
     }
   };

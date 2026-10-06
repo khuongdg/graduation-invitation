@@ -26,6 +26,104 @@ function isDuplicateRegistration(key) {
   return false;
 }
 
+function readLocalCsvRegistrations() {
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'registrations.csv');
+    if (!fs.existsSync(filePath)) return [];
+
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.trim().split('\n').filter(l => l.trim() !== '');
+    if (lines.length <= 1) return [];
+
+    const result = [];
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      const matches = line.match(/(?:^|,)(?:"([^"]*)"|([^,]*))/g);
+      if (matches && matches.length >= 5) {
+        const cleanValues = matches.map(m => {
+          let v = m.replace(/^,/, '').trim();
+          if (v.startsWith('"') && v.endsWith('"')) {
+            v = v.substring(1, v.length - 1).replace(/""/g, '"');
+          }
+          return v;
+        });
+        result.push({
+          id: cleanValues[0] || i,
+          name: cleanValues[1] || 'Khách mời',
+          phone: (cleanValues[2] || '').replace(/^'/, ''),
+          email: cleanValues[3] || '',
+          status: cleanValues[4] || 'Xác nhận tham gia',
+          timestamp: cleanValues[5] || ''
+        });
+      }
+    }
+    return result;
+  } catch (err) {
+    console.error('Error reading local CSV:', err);
+    return [];
+  }
+}
+
+export async function GET() {
+  try {
+    const googleScriptUrl = siteConfig.googleScriptUrl;
+    const params = new URLSearchParams({ action: 'getRegistrations' });
+    
+    let remoteRegistrations = [];
+    try {
+      const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        redirect: 'follow',
+        next: { revalidate: 0 }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.registrations) {
+          remoteRegistrations = data.registrations;
+        }
+      }
+    } catch (remoteErr) {
+      console.error('Failed to fetch registrations from Apps Script:', remoteErr);
+    }
+
+    const localRegistrations = readLocalCsvRegistrations();
+
+    // Deduplicate by guest (phone/email/name), keeping the LATEST submission
+    const guestMap = new Map();
+
+    const getPersonKey = (item) => {
+      const p = (item.phone || '').toString().replace(/^'/, '').trim();
+      const e = (item.email || '').toString().trim().toLowerCase();
+      const n = (item.name || '').toString().trim().toLowerCase();
+      if (p) return `phone_${p}`;
+      if (e) return `email_${e}`;
+      return `name_${n}`;
+    };
+
+    // 1. Process local CSV registrations first
+    localRegistrations.forEach((item) => {
+      const key = getPersonKey(item);
+      if (key) guestMap.set(key, item);
+    });
+
+    // 2. Process remote Google Sheets registrations (overwrite with latest entry in sheet)
+    remoteRegistrations.forEach((item) => {
+      const key = getPersonKey(item);
+      if (key) guestMap.set(key, item);
+    });
+
+    const combined = Array.from(guestMap.values());
+
+    return NextResponse.json({ success: true, registrations: combined });
+  } catch (error) {
+    console.error('Error getting registrations:', error);
+    const fallback = readLocalCsvRegistrations();
+    return NextResponse.json({ success: true, registrations: fallback });
+  }
+}
+
 export async function POST(request) {
   try {
     const data = await request.json();
@@ -53,7 +151,7 @@ export async function POST(request) {
       if (fileExists) {
         const content = fs.readFileSync(filePath, 'utf8');
         const lines = content.trim().split('\n').filter(line => line.trim() !== '');
-        stt = Math.max(1, lines.length); // header is line 1, first entry is 1
+        stt = Math.max(1, lines.length);
       }
 
       const formattedPhone = phone.startsWith("'") ? phone : `'${phone}`;
@@ -95,5 +193,81 @@ export async function POST(request) {
   } catch (error) {
     console.error('Error in proxy API:', error);
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    const email = searchParams.get('email');
+    const phone = searchParams.get('phone');
+
+    if (!id && !email && !phone) {
+      return NextResponse.json({ success: false, message: 'Thiếu thông tin cần xóa' }, { status: 400 });
+    }
+
+    const googleScriptUrl = siteConfig.googleScriptUrl;
+    const params = new URLSearchParams({
+      action: 'deleteRegistration',
+      id: id || '',
+      email: email || '',
+      phone: phone || ''
+    });
+
+    try {
+      await fetch(`${googleScriptUrl}?${params.toString()}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        redirect: 'follow',
+        next: { revalidate: 0 }
+      });
+    } catch (e) {
+      console.error('Remote delete failed:', e);
+    }
+
+    // Also remove from local CSV if exists
+    try {
+      const filePath = path.join(process.cwd(), 'public', 'registrations.csv');
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf8');
+        const lines = content.trim().split('\n');
+        if (lines.length > 1) {
+          const header = lines[0];
+          const newLines = [header];
+          const targetEmail = (email || '').trim().toLowerCase();
+          const targetPhone = (phone || '').replace(/^'/, '').trim();
+
+          for (let i = 1; i < lines.length; i++) {
+            const l = lines[i];
+            const matches = l.match(/(?:^|,)(?:"([^"]*)"|([^,]*))/g);
+            if (matches && matches.length >= 4) {
+              const cleanValues = matches.map(m => {
+                let v = m.replace(/^,/, '').trim();
+                if (v.startsWith('"') && v.endsWith('"')) {
+                  v = v.substring(1, v.length - 1).replace(/""/g, '"');
+                }
+                return v;
+              });
+              const rowPhone = (cleanValues[2] || '').replace(/^'/, '').trim();
+              const rowEmail = (cleanValues[3] || '').trim().toLowerCase();
+
+              if ((targetEmail && rowEmail === targetEmail) || (targetPhone && rowPhone === targetPhone)) {
+                continue; // Skip matching line
+              }
+            }
+            newLines.push(l);
+          }
+          fs.writeFileSync(filePath, newLines.join('\n') + '\n', 'utf8');
+        }
+      }
+    } catch (csvErr) {
+      console.error('Error updating local CSV on delete:', csvErr);
+    }
+
+    return GET();
+  } catch (error) {
+    console.error('Error deleting registration:', error);
+    return NextResponse.json({ success: false, message: 'Lỗi server khi xóa' }, { status: 500 });
   }
 }

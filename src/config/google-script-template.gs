@@ -92,6 +92,27 @@ function doGet(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
+    if (action === "getRegistrations" || action === "getRsvp") {
+      return ContentService.createTextOutput(JSON.stringify({ 
+        "success": true, 
+        "registrations": getRegistrations() 
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (action === "deleteRegistration") {
+      var id = e.parameter.id;
+      var email = e.parameter.email;
+      var phone = e.parameter.phone;
+      
+      var deleted = deleteRegistrationFromSheet(id, email, phone);
+      
+      return ContentService.createTextOutput(JSON.stringify({ 
+        "success": true, 
+        "deleted": deleted,
+        "registrations": getRegistrations()
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     // ================================================================
     // 3. MẶC ĐỊNH: XỬ LÝ ĐĂNG KÝ NHẬN THIỆP / XÁC NHẬN THAM GIA (RSVP)
     // ================================================================
@@ -421,6 +442,82 @@ function generateAndSendInvitation(name, email) {
     return true;
   } catch (err) {
     Logger.log("Lỗi gửi mail: " + err.toString());
+    return false;
+  }
+}
+
+// ----------------------------------------------------------------
+// HÀM LẤY DANH SÁCH KHÁCH MỜI ĐĂNG KÝ (RSVP) TỪ SHEET "Đăng ký"
+// ----------------------------------------------------------------
+function getRegistrations() {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("Đăng ký");
+    if (!sheet) return [];
+    var data = sheet.getDataRange().getValues();
+    var list = [];
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
+      if (row[1] && row[1].toString().trim() !== "") {
+        var timeVal = "";
+        if (row[5]) {
+          if (row[5] instanceof Date) {
+            timeVal = Utilities.formatDate(row[5], "GMT+7", "HH:mm:ss dd/MM/yyyy");
+          } else {
+            timeVal = row[5].toString().trim();
+          }
+        }
+        var rawPhone = row[2] ? row[2].toString().replace(/^'/, '').trim() : "";
+        list.push({
+          id: row[0] || i,
+          name: row[1].toString().trim(),
+          phone: rawPhone,
+          email: row[3] ? row[3].toString().trim() : "",
+          status: row[4] ? row[4].toString().trim() : "Xác nhận tham gia",
+          timestamp: timeVal
+        });
+      }
+    }
+    return list;
+  } catch (err) {
+    Logger.log("Lỗi getRegistrations: " + err.toString());
+    return [];
+  }
+}
+
+// ----------------------------------------------------------------
+// HÀM XÓA KHÁCH MỜI ĐĂNG KÝ TRONG SHEET "Đăng ký"
+// ----------------------------------------------------------------
+function deleteRegistrationFromSheet(id, email, phone) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("Đăng ký");
+    if (!sheet) return false;
+    var data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return false;
+    
+    var targetId = id ? id.toString().trim() : "";
+    var targetEmail = email ? email.toString().trim().toLowerCase() : "";
+    var targetPhone = phone ? phone.toString().replace(/^'/, '').trim() : "";
+    
+    for (var i = data.length - 1; i >= 1; i--) {
+      var row = data[i];
+      var rowId = row[0] ? row[0].toString().trim() : "";
+      var rowPhone = row[2] ? row[2].toString().replace(/^'/, '').trim() : "";
+      var rowEmail = row[3] ? row[3].toString().trim().toLowerCase() : "";
+      
+      var matchesId = targetId && rowId === targetId;
+      var matchesEmail = targetEmail && rowEmail === targetEmail;
+      var matchesPhone = targetPhone && rowPhone === targetPhone;
+      
+      if (matchesId || matchesEmail || matchesPhone) {
+        sheet.deleteRow(i + 1);
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    Logger.log("Lỗi deleteRegistrationFromSheet: " + err.toString());
     return false;
   }
 }
