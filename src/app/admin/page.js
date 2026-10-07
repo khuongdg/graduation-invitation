@@ -372,8 +372,8 @@ export default function AdminGoalPage() {
       mFiles.forEach((file) => {
         formData.append('images', file);
       });
-      formData.append('name', mName || 'Người bạn thân');
-      formData.append('caption', mCaption || 'Kỷ niệm ngày chụp ảnh tốt nghiệp!');
+      formData.append('name', mName ? mName.trim() : '');
+      formData.append('caption', mCaption ? mCaption.trim() : '');
 
       const res = await fetch('/api/memories', {
         method: 'POST',

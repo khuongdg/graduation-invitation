@@ -121,7 +121,7 @@ export async function POST(request) {
       const singleFile = formData.get('image');
       if (singleFile) files = [singleFile];
     }
-    const name = (formData.get('name') || 'Người bạn thân').toString();
+    const name = (formData.get('name') || '').toString();
     const caption = (formData.get('caption') || '').toString();
 
     let currentTimestamp = '';

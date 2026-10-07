@@ -282,10 +282,12 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
                         loading="lazy"
                         decoding="async"
                       />
-                      <div className="film-photo-info">
-                        <span className="film-photo-name">{m?.name || m?.title || 'Kỷ niệm'}</span>
-                        <span className="film-photo-caption">{m?.caption || ''}</span>
-                      </div>
+                      {(m?.name || m?.title || m?.caption) && (
+                        <div className="film-photo-info">
+                          {(m?.name || m?.title) && <span className="film-photo-name">{m?.name || m?.title}</span>}
+                          {m?.caption && <span className="film-photo-caption">{m?.caption}</span>}
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div className="film-letter-card">

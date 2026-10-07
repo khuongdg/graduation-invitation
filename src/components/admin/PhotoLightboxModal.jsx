@@ -50,7 +50,7 @@ export default function PhotoLightboxModal({ selectedPhoto, setSelectedPhoto }) 
           <div className="lightbox-letter-modal-card">
             <div className="letter-modal-seal">💌</div>
             <h3 className="letter-modal-title">
-              {selectedPhoto.name || selectedPhoto.title || 'Người bạn thân'}
+              {selectedPhoto.name || selectedPhoto.title || 'Lời chúc kỷ niệm'}
             </h3>
             {(selectedPhoto.time || selectedPhoto.date || selectedPhoto.timestamp || selectedPhoto.createdAt) && (
               <span className="letter-modal-time">
