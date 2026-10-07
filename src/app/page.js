@@ -13,8 +13,15 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import AdminAuthModal from "@/components/AdminAuthModal";
 import JourneyGlobeModal from "@/components/JourneyGlobeModal";
+import BackgroundMusic from "@/components/BackgroundMusic";
+import { siteConfig } from "@/config/siteConfig";
 
 export default function Home() {
+  useEffect(() => {
+    if (typeof document !== 'undefined' && siteConfig.meta?.title) {
+      document.title = siteConfig.meta.title;
+    }
+  }, []);
   const section2Ref = useRef(null);
   const memoryWallRef = useRef(null);
   const heroRef = useRef(null);
@@ -393,6 +400,9 @@ export default function Home() {
         onClose={handleCloseGlobe}
         photos={journeyPhotos}
       />
+
+      {/* Floating Background Music Control Widget */}
+      <BackgroundMusic />
     </>
   );
 }

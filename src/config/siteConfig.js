@@ -59,12 +59,12 @@ export const siteConfig = {
   },
 
   // Google Sheets Apps Script Web App Integration URL
-  googleScriptUrl: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbx-GSi_AUvfJEw-VPTAnEsAsac12aaX45IPYhA0kSEP_QfT40J7koeRnGb_YsY662NDyw/exec',
+  googleScriptUrl: process.env.GOOGLE_SCRIPT_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || '',
 
   // SEO Meta & Site Branding
   meta: {
-    title: 'My Special Day! - Graduation Invitation 🎓',
-    description: 'Thiệp mời tham dự Lễ Tốt Nghiệp Đại học Tôn Đức Thắng',
+    title: 'Graduation Invitation 🎓',
+    description: 'Thiệp mời tham dự Lễ Tốt Nghiệp - Dương Nhựt Khương | Đại học Tôn Đức Thắng',
     icon: '/assets/graduation-symbol.png',
   },
 
