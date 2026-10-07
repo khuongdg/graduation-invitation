@@ -246,7 +246,7 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
 
       // Apply auto spin if enabled and not currently dragging or hovering
       if (isAutoSpinning && !isDraggingRef.current && hoveredIdx === null) {
-        rotYRef.current += 0.35 * dt;
+        rotYRef.current += (isMobile ? 0.12 : 0.18) * dt;
       }
 
       // Apply drag velocity decay
@@ -607,17 +607,19 @@ export default function JourneyGlobeModal({ isOpen, onClose, photos = [] }) {
               height: '100%',
               borderRadius: '14px',
               overflow: 'hidden',
-              background: 'rgba(15, 20, 40, 0.88)',
+              background: 'rgba(12, 16, 35, 0.94)',
               border: hoveredIdx === idx
                 ? '2px solid #00F0FF'
                 : photo.isFeatured
                   ? '1.5px solid #FFD700'
                   : '1px solid rgba(255, 255, 255, 0.2)',
-              boxShadow: hoveredIdx === idx
-                ? '0 10px 30px rgba(0, 240, 255, 0.6)'
-                : photo.isFeatured
-                  ? '0 4px 20px rgba(255, 215, 0, 0.3)'
-                  : '0 4px 15px rgba(0, 0, 0, 0.5)',
+              boxShadow: isMobile
+                ? '0 2px 8px rgba(0, 0, 0, 0.6)'
+                : hoveredIdx === idx
+                  ? '0 10px 30px rgba(0, 240, 255, 0.6)'
+                  : photo.isFeatured
+                    ? '0 4px 20px rgba(255, 215, 0, 0.3)'
+                    : '0 4px 15px rgba(0, 0, 0, 0.5)',
               position: 'relative'
             }}>
               <img
