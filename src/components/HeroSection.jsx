@@ -27,7 +27,14 @@ export default function HeroSection({ heroRef, parallaxOffset, onBeginJourney, o
       <div className="hero-content-layer">
         {/* Circular Liquid Glass Ring surrounding TDTU Logo */}
         <div className="hero-logo-ring">
-          <img src={candidate.logoUrl} alt={`${candidate.schoolShort} Logo`} className="hero-tdtu-logo" />
+          <img
+            src={candidate.logoUrl}
+            alt={`${candidate.schoolShort} Logo`}
+            className="hero-tdtu-logo"
+            loading="eager"
+            fetchPriority="high"
+            decoding="sync"
+          />
         </div>
 
         {/* Main Title: Graduation Invitation */}

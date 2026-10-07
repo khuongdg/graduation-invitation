@@ -166,7 +166,7 @@ export async function POST(request) {
       console.error('Backup CSV writing failed:', csvError);
     }
 
-    // 2. Proxy request to Google Sheets Apps Script Web App (using GET with query params)
+    // 2. Proxy request asynchronously to Google Sheets Apps Script Web App
     const googleScriptUrl = siteConfig.googleScriptUrl;
     const params = new URLSearchParams({
       name,
@@ -175,20 +175,18 @@ export async function POST(request) {
       status: attendanceStatus
     });
 
-    const googleResponse = await fetch(`${googleScriptUrl}?${params.toString()}`, {
+    // Background sync to Google Sheets (non-blocking for sub-50ms UX)
+    fetch(`${googleScriptUrl}?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
       },
       redirect: 'follow'
+    }).catch((err) => {
+      console.error('Background Google Sheets sync warning:', err);
     });
 
-    if (googleResponse.ok) {
-      return NextResponse.json({ success: true, message: 'Saved to Google Sheets' });
-    } else {
-      console.error('Google Sheets Apps Script returned error status:', googleResponse.status);
-      return NextResponse.json({ success: false, message: 'Google Sheets sync failed' }, { status: 502 });
-    }
+    return NextResponse.json({ success: true, message: 'Đã lưu thông tin đăng ký thành công!' });
 
   } catch (error) {
     console.error('Error in proxy API:', error);

@@ -279,6 +279,8 @@ export default function FilmRoll({ memories = [], direction = 'ltr', onPhotoClic
                         src={formatImageUrl(m?.imageUrl || m?.image)}
                         alt={m?.name || m?.title || 'Kỷ niệm'}
                         draggable={false}
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div className="film-photo-info">
                         <span className="film-photo-name">{m?.name || m?.title || 'Kỷ niệm'}</span>

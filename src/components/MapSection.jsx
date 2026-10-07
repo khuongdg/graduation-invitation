@@ -42,7 +42,7 @@ export default function MapSection() {
         onClick={() => setIsMapModalOpen(true)}
         title="Bấm để phóng to sơ đồ"
       >
-        <img src={map.image} alt="Sơ đồ tổng quát TDTU" className="map-image" />
+        <img src={map.image} alt="Sơ đồ tổng quát TDTU" className="map-image" loading="lazy" decoding="async" />
         <div className="map-zoom-hint-badge">
           🔍 Chỉ đường
         </div>

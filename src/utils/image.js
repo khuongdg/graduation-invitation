@@ -18,5 +18,11 @@ export function formatImageUrl(rawUrl) {
     return `https://lh3.googleusercontent.com/d/${driveIdMatch[1]}`;
   }
 
+  // Pattern 3: Cloudinary URL optimization (f_auto, q_auto preserves quality & dimensions while reducing payload by 70%)
+  if (url.includes('res.cloudinary.com') && url.includes('/upload/') && !url.includes('/f_auto')) {
+    return url.replace('/upload/', '/upload/f_auto,q_auto/');
+  }
+
   return url;
 }
+

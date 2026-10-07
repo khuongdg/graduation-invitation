@@ -56,7 +56,7 @@ export default function MemoriesSection({
                   <input
                     type="text"
                     required
-                    placeholder="Ví dụ: Người bạn thân"
+                    placeholder="Ví dụ: Nguyễn Văn A"
                     className="glass-input-field"
                     value={uploadData.name}
                     onChange={(e) => setUploadData((prev) => ({ ...prev, name: e.target.value }))}

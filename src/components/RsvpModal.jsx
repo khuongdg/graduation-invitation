@@ -26,7 +26,7 @@ export default function RsvpModal({
                   name="name"
                   type="text"
                   required
-                  placeholder="Nhập họ và tên"
+                  placeholder="Ví dụ: Nguyễn Văn A"
                   className="glass-input-field"
                   value={formData.name}
                   onChange={onInputChange}
@@ -39,7 +39,7 @@ export default function RsvpModal({
                   name="phone"
                   type="tel"
                   required
-                  placeholder="Nhập số điện thoại"
+                  placeholder="Ví dụ: 0912345678"
                   className="glass-input-field"
                   value={formData.phone}
                   onChange={onInputChange}
@@ -52,7 +52,7 @@ export default function RsvpModal({
                   name="email"
                   type="email"
                   required
-                  placeholder="Nhập email"
+                  placeholder="Ví dụ: nguyenvana@gmail.com"
                   className="glass-input-field"
                   value={formData.email}
                   onChange={onInputChange}

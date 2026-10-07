@@ -121,7 +121,12 @@ export default function JourneySection({ section2Ref, onOpenGlobeModal, onScroll
                 cursor: onPhotoClick ? 'pointer' : 'default'
               }}
             >
-              <img src={formatImageUrl(mainPhoto.imageUrl)} alt={mainPhoto.title || 'TDTU Campus'} />
+              <img
+                src={formatImageUrl(mainPhoto.imageUrl)}
+                alt={mainPhoto.title || 'TDTU Campus'}
+                loading="eager"
+                decoding="async"
+              />
             </div>
           )}
 
@@ -143,7 +148,12 @@ export default function JourneySection({ section2Ref, onOpenGlobeModal, onScroll
                     cursor: onPhotoClick ? 'pointer' : 'default'
                   }}
                 >
-                  <img src={formatImageUrl(p.imageUrl)} alt={p.title || 'Kỷ niệm'} />
+                  <img
+                    src={formatImageUrl(p.imageUrl)}
+                    alt={p.title || 'Kỷ niệm'}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
               ))}
             </div>

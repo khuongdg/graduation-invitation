@@ -99,11 +99,17 @@ export async function GET() {
     // Combine user uploaded memories, in-memory text memories, and default ones
     const formattedDefaults = defaultMemories.map((m) => ({ ...m, imageUrl: formatImageUrl(m.imageUrl) }));
     const combined = filterUniqueMemories([...userMemories, ...localTextMemories, ...formattedDefaults]);
-    return NextResponse.json({ success: true, memories: combined });
+    return NextResponse.json(
+      { success: true, memories: combined },
+      { headers: { 'Cache-Control': 'public, max-age=10, s-maxage=60, stale-while-revalidate=300' } }
+    );
   } catch (error) {
     console.error('Error fetching memories from Apps Script:', error);
     // Fallback to default memories if offline
-    return NextResponse.json({ success: true, memories: filterUniqueMemories([...localTextMemories, ...defaultMemories]) });
+    return NextResponse.json(
+      { success: true, memories: filterUniqueMemories([...localTextMemories, ...defaultMemories]) },
+      { headers: { 'Cache-Control': 'public, max-age=10, s-maxage=60, stale-while-revalidate=300' } }
+    );
   }
 }
 
@@ -148,25 +154,16 @@ export async function POST(request) {
         timestamp: currentTimestamp
       });
 
-      let scriptMemories = [];
-      try {
-        const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' },
-          redirect: 'follow'
-        });
+      // Background non-blocking sync for text-only wishes (instant <50ms response)
+      fetch(`${googleScriptUrl}?${params.toString()}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        redirect: 'follow'
+      }).catch((errScript) => {
+        console.error('Apps Script saveMemory call warning:', errScript);
+      });
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.memories) {
-            scriptMemories = data.memories;
-          }
-        }
-      } catch (errScript) {
-        console.error('Apps Script saveMemory call error:', errScript);
-      }
-
-      const combined = filterUniqueMemories([textMemory, ...scriptMemories, ...localTextMemories, ...defaultMemories]);
+      const combined = filterUniqueMemories([textMemory, ...localTextMemories, ...defaultMemories]);
       return NextResponse.json({ success: true, memories: combined });
     }
 

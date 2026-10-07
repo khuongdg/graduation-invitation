@@ -12,11 +12,14 @@ import MapSection from "@/components/MapSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import AdminAuthModal from "@/components/AdminAuthModal";
-import JourneyGlobeModal from "@/components/JourneyGlobeModal";
 import BackgroundMusic from "@/components/BackgroundMusic";
 import { siteConfig } from "@/config/siteConfig";
+import { formatImageUrl } from "@/utils/image";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+
   useEffect(() => {
     if (typeof document !== 'undefined' && siteConfig.meta?.title) {
       document.title = siteConfig.meta.title;
@@ -31,59 +34,9 @@ export default function Home() {
   // Admin Auth Pop-up State
   const [isAdminAuthOpen, setIsAdminAuthOpen] = useState(false);
 
-  // 3D Photo Globe Modal State (Persisted across Page Reloads & URL Hash #globe)
-  const [isGlobeOpen, setIsGlobeOpen] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const hasHash = window.location.hash === '#globe';
-      const hasSession = sessionStorage.getItem('isGlobeOpen') === 'true';
-      if (hasHash || hasSession) {
-        setIsGlobeOpen(true);
-        if (!hasHash) {
-          window.history.replaceState(null, '', '#globe');
-        }
-      }
-    }
-  }, []);
-
   const handleOpenGlobe = () => {
-    setIsGlobeOpen(true);
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('isGlobeOpen', 'true');
-      if (window.location.hash !== '#globe') {
-        window.history.pushState(null, '', '#globe');
-      }
-    }
+    router.push('/globe');
   };
-
-  const handleCloseGlobe = () => {
-    setIsGlobeOpen(false);
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('isGlobeOpen');
-      if (window.location.hash === '#globe') {
-        window.history.replaceState(null, '', window.location.pathname + window.location.search);
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      if (window.location.hash === '#globe') {
-        setIsGlobeOpen(true);
-      } else {
-        setIsGlobeOpen(false);
-        sessionStorage.removeItem('isGlobeOpen');
-      }
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    window.addEventListener('popstate', handleHashChange);
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-      window.removeEventListener('popstate', handleHashChange);
-    };
-  }, []);
 
   // Global Parallax mouse depth tracking across full window
   const [parallaxOffset, setParallaxOffset] = useState({ x: 0, y: 0 });
@@ -128,13 +81,28 @@ export default function Home() {
     memoryWallRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Helper function to pre-cache image bytes in browser memory
+  const preloadImages = (urls) => {
+    if (typeof window === 'undefined' || !Array.isArray(urls)) return;
+    urls.forEach((u) => {
+      if (u) {
+        const formattedUrl = formatImageUrl(u);
+        if (formattedUrl) {
+          const img = new Image();
+          img.src = formattedUrl;
+        }
+      }
+    });
+  };
+
   // Fetch Section 2 Journey Photos
   const fetchJourneyPhotos = async () => {
     try {
-      const res = await fetch(`/api/journey?t=${Date.now()}`, { cache: 'no-store' });
+      const res = await fetch('/api/journey');
       const data = await res.json();
       if (data.success && data.photos) {
         setJourneyPhotos(data.photos);
+        preloadImages(data.photos.map((p) => p.imageUrl));
       }
     } catch (err) {
       console.error('Failed to fetch journey photos', err);
@@ -165,20 +133,15 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
-    if (isGlobeOpen) {
-      fetchJourneyPhotos();
-    }
-  }, [isGlobeOpen]);
-
   // Fetch Section 5 Cloudinary Memories
   useEffect(() => {
     const fetchMemories = async () => {
       try {
-        const res = await fetch(`/api/memories?t=${Date.now()}`, { cache: 'no-store' });
+        const res = await fetch('/api/memories');
         const data = await res.json();
-        if (data.success) {
+        if (data.success && data.memories) {
           setMemories(data.memories);
+          preloadImages(data.memories.map((m) => m.imageUrl || m.image));
         }
       } catch (err) {
         console.error('Failed to fetch memories', err);
@@ -392,13 +355,6 @@ export default function Home() {
       <AdminAuthModal
         isOpen={isAdminAuthOpen}
         onClose={() => setIsAdminAuthOpen(false)}
-      />
-
-      {/* 3D Photo Globe Modal for Section 2 (My Journey) */}
-      <JourneyGlobeModal
-        isOpen={isGlobeOpen}
-        onClose={handleCloseGlobe}
-        photos={journeyPhotos}
       />
 
       {/* Floating Background Music Control Widget */}
