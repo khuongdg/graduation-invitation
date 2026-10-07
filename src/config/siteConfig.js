@@ -59,7 +59,10 @@ export const siteConfig = {
   },
 
   // Google Sheets Apps Script Web App Integration URL
-  googleScriptUrl: process.env.GOOGLE_SCRIPT_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || '',
+  googleScriptUrl:
+    process.env.GOOGLE_SCRIPT_URL ||
+    process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ||
+    'https://script.google.com/macros/s/AKfycbx-GSi_AUvfJEw-VPTAnEsAsac12aaX45IPYhA0kSEP_QfT40J7koeRnGb_YsY662NDyw/exec',
 
   // SEO Meta & Site Branding
   meta: {
