@@ -7,6 +7,7 @@ import AdminJourneyTab from '@/components/admin/AdminJourneyTab';
 import AdminMemoriesTab from '@/components/admin/AdminMemoriesTab';
 import AdminRsvpTab from '@/components/admin/AdminRsvpTab';
 import PhotoLightboxModal from '@/components/admin/PhotoLightboxModal';
+import { compressImageFile } from '@/utils/image';
 
 export default function AdminGoalPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -266,7 +267,10 @@ export default function AdminGoalPage() {
 
     try {
       const formData = new FormData();
-      jFiles.forEach((file) => {
+      const compressedFiles = await Promise.all(
+        jFiles.map((file) => compressImageFile(file))
+      );
+      compressedFiles.forEach((file) => {
         formData.append('images', file);
       });
       formData.append('title', jTitle || '');
@@ -369,7 +373,10 @@ export default function AdminGoalPage() {
 
     try {
       const formData = new FormData();
-      mFiles.forEach((file) => {
+      const compressedFiles = await Promise.all(
+        mFiles.map((file) => compressImageFile(file))
+      );
+      compressedFiles.forEach((file) => {
         formData.append('images', file);
       });
       formData.append('name', mName ? mName.trim() : '');

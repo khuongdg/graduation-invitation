@@ -12,9 +12,8 @@ import MapSection from "@/components/MapSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import AdminAuthModal from "@/components/AdminAuthModal";
-import BackgroundMusic from "@/components/BackgroundMusic";
 import { siteConfig } from "@/config/siteConfig";
-import { formatImageUrl } from "@/utils/image";
+import { formatImageUrl, compressImageFile } from "@/utils/image";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -214,7 +213,10 @@ export default function Home() {
 
     const bodyFormData = new FormData();
     if (uploadData.images && uploadData.images.length > 0) {
-      uploadData.images.forEach((file) => {
+      const compressedFiles = await Promise.all(
+        uploadData.images.map((file) => compressImageFile(file))
+      );
+      compressedFiles.forEach((file) => {
         bodyFormData.append('images', file);
       });
     }
@@ -368,9 +370,6 @@ export default function Home() {
         isOpen={isAdminAuthOpen}
         onClose={() => setIsAdminAuthOpen(false)}
       />
-
-      {/* Floating Background Music Control Widget */}
-      <BackgroundMusic />
     </>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 // Inline vector SVG icons
 function Volume2Icon({ style, className = '' }) {
@@ -42,8 +43,13 @@ function VolumeXIcon({ style, className = '' }) {
 }
 
 export default function BackgroundMusic() {
+  const pathname = usePathname();
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
+
+  if (pathname && pathname.startsWith('/admin')) {
+    return null;
+  }
 
   const audioUrl =
     process.env.NEXT_PUBLIC_MUSIC_URL || '/music/Kid.mp3' ||
@@ -101,7 +107,7 @@ export default function BackgroundMusic() {
         position: 'fixed',
         bottom: '24px',
         right: '24px',
-        zIndex: 9999,
+        zIndex: 100001,
         display: 'flex',
         alignItems: 'center'
       }}
