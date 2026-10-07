@@ -25,10 +25,10 @@ export const siteConfig = {
     monthYear: 'OCTOBER 2026',
     time: '09:00 - 11:30',
     period: 'AM',
-    targetDate: '2026-10-17T08:00:00',
+    targetDate: '2026-10-17T09:00:00',
     locationHall: 'HALL A',
     locationVenue: 'Ton Duc Thang University',
-    subtext: 'Sự hiện diện của bạn là niềm vinh hạnh cho tôi trong ngày trọng đại này!',
+    subtext: 'Sự hiện diện của bạn là niềm vinh hạnh cho mình trong ngày trọng đại này!',
     buttonText: 'Xác nhận tham dự',
   },
 
@@ -59,10 +59,7 @@ export const siteConfig = {
   },
 
   // Google Sheets Apps Script Web App Integration URL
-  googleScriptUrl:
-    process.env.GOOGLE_SCRIPT_URL ||
-    process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ||
-    'https://script.google.com/macros/s/AKfycbx-GSi_AUvfJEw-VPTAnEsAsac12aaX45IPYhA0kSEP_QfT40J7koeRnGb_YsY662NDyw/exec',
+  googleScriptUrl: process.env.GOOGLE_SCRIPT_URL || '',
 
   // SEO Meta & Site Branding
   meta: {
