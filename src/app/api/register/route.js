@@ -70,6 +70,8 @@ export async function GET() {
     const params = new URLSearchParams({ action: 'getRegistrations' });
     
     let remoteRegistrations = [];
+    let isRemoteSuccess = false;
+
     try {
       const response = await fetch(`${googleScriptUrl}?${params.toString()}`, {
         method: 'GET',
@@ -80,43 +82,46 @@ export async function GET() {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.success && data.registrations) {
+        if (data.success && Array.isArray(data.registrations)) {
           remoteRegistrations = data.registrations;
+          isRemoteSuccess = true;
         }
       }
     } catch (remoteErr) {
       console.error('Failed to fetch registrations from Apps Script:', remoteErr);
     }
 
+    if (isRemoteSuccess) {
+      // Sync local CSV backup file with Google Sheets state (clears CSV if sheet is empty)
+      try {
+        const filePath = path.join(process.cwd(), 'public', 'registrations.csv');
+        const csvHeader = 'STT,Họ và tên,Số điện thoại,Email,Trạng thái,Thời gian đăng ký\n';
+        if (remoteRegistrations.length === 0) {
+          fs.writeFileSync(filePath, '\ufeff' + csvHeader, 'utf8');
+        } else {
+          let stt = 1;
+          const rows = remoteRegistrations.map((item) => {
+            const formattedPhone = (item.phone || '').toString().startsWith("'") ? item.phone : `'${item.phone}`;
+            return `"${stt++}","${(item.name || '').replace(/"/g, '""')}","${formattedPhone}","${(item.email || '').replace(/"/g, '""')}","${(item.status || 'Xác nhận tham gia').replace(/"/g, '""')}","${item.timestamp || item.time || ''}"`;
+          });
+          fs.writeFileSync(filePath, '\ufeff' + csvHeader + rows.join('\n') + '\n', 'utf8');
+        }
+      } catch (syncCsvErr) {
+        console.error('Local CSV sync error:', syncCsvErr);
+      }
+
+      return NextResponse.json(
+        { success: true, registrations: remoteRegistrations },
+        { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } }
+      );
+    }
+
+    // Fallback to local CSV file if Google Apps Script call failed
     const localRegistrations = readLocalCsvRegistrations();
-
-    // Deduplicate by guest (phone/email/name), keeping the LATEST submission
-    const guestMap = new Map();
-
-    const getPersonKey = (item) => {
-      const p = (item.phone || '').toString().replace(/^'/, '').trim();
-      const e = (item.email || '').toString().trim().toLowerCase();
-      const n = (item.name || '').toString().trim().toLowerCase();
-      if (p) return `phone_${p}`;
-      if (e) return `email_${e}`;
-      return `name_${n}`;
-    };
-
-    // 1. Process local CSV registrations first
-    localRegistrations.forEach((item) => {
-      const key = getPersonKey(item);
-      if (key) guestMap.set(key, item);
-    });
-
-    // 2. Process remote Google Sheets registrations (overwrite with latest entry in sheet)
-    remoteRegistrations.forEach((item) => {
-      const key = getPersonKey(item);
-      if (key) guestMap.set(key, item);
-    });
-
-    const combined = Array.from(guestMap.values());
-
-    return NextResponse.json({ success: true, registrations: combined });
+    return NextResponse.json(
+      { success: true, registrations: localRegistrations },
+      { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } }
+    );
   } catch (error) {
     console.error('Error getting registrations:', error);
     const fallback = readLocalCsvRegistrations();
