@@ -109,45 +109,57 @@ export default function Home() {
     }
   };
 
+  // Fetch Section 5 Cloudinary Memories
+  const fetchMemories = async () => {
+    try {
+      const res = await fetch(`/api/memories?t=${Date.now()}`);
+      const data = await res.json();
+      if (data.success && data.memories) {
+        setMemories(data.memories);
+        preloadImages(data.memories.map((m) => m.imageUrl || m.image));
+      }
+    } catch (err) {
+      console.error('Failed to fetch memories', err);
+    }
+  };
+
   useEffect(() => {
     fetchJourneyPhotos();
+    fetchMemories();
 
     const handleFocus = () => {
       fetchJourneyPhotos();
+      fetchMemories();
     };
+
+    const handleStorageChange = (e) => {
+      if (e.key === 'graduation_sync_trigger') {
+        fetchJourneyPhotos();
+        fetchMemories();
+      }
+    };
+
     window.addEventListener('focus', handleFocus);
+    window.addEventListener('storage', handleStorageChange);
 
     let channel;
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       channel = new BroadcastChannel('graduation_admin_sync');
       channel.onmessage = (event) => {
-        if (event.data === 'journey_updated') {
+        if (event.data === 'journey_updated' || event.data === 'all_updated') {
           fetchJourneyPhotos();
+        }
+        if (event.data === 'memories_updated' || event.data === 'all_updated') {
+          fetchMemories();
         }
       };
     }
 
     return () => {
       window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('storage', handleStorageChange);
       if (channel) channel.close();
     };
-  }, []);
-
-  // Fetch Section 5 Cloudinary Memories
-  useEffect(() => {
-    const fetchMemories = async () => {
-      try {
-        const res = await fetch('/api/memories');
-        const data = await res.json();
-        if (data.success && data.memories) {
-          setMemories(data.memories);
-          preloadImages(data.memories.map((m) => m.imageUrl || m.image));
-        }
-      } catch (err) {
-        console.error('Failed to fetch memories', err);
-      }
-    };
-    fetchMemories();
   }, []);
 
   // Cloudinary File Upload Handlers

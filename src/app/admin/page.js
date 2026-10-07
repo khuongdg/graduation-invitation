@@ -238,13 +238,18 @@ export default function AdminGoalPage() {
     document.body.removeChild(link);
   };
 
-  const notifySync = () => {
-    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+  const notifySync = (type = 'all_updated') => {
+    if (typeof window !== 'undefined') {
       try {
-        const channel = new BroadcastChannel('graduation_admin_sync');
-        channel.postMessage('journey_updated');
-        channel.close();
-      } catch (e) { }
+        localStorage.setItem('graduation_sync_trigger', `${type}_${Date.now()}`);
+      } catch (e) {}
+      if ('BroadcastChannel' in window) {
+        try {
+          const channel = new BroadcastChannel('graduation_admin_sync');
+          channel.postMessage(type);
+          channel.close();
+        } catch (e) {}
+      }
     }
   };
 
@@ -387,6 +392,7 @@ export default function AdminGoalPage() {
           if (input) input.value = '';
         }
         setMemories(data.memories || []);
+        notifySync('memories_updated');
       } else {
         alert(data.message || 'Tải ảnh lên thất bại!');
       }
@@ -409,6 +415,7 @@ export default function AdminGoalPage() {
       const data = await res.json();
       if (data.success && data.memories) {
         setMemories(data.memories);
+        notifySync('memories_updated');
       } else {
         alert(data.message || 'Chưa xóa được ảnh trên Google Sheets! Vui lòng kiểm tra lại Google Apps Script.');
         fetchMemories();
