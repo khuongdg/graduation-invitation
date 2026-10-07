@@ -46,7 +46,7 @@ export default function BackgroundMusic() {
   const audioRef = useRef(null);
 
   const audioUrl =
-    process.env.NEXT_PUBLIC_MUSIC_URL ||
+    process.env.NEXT_PUBLIC_MUSIC_URL || '/music/Kid.mp3' ||
     'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=acoustic-guitars-ambient-116186.mp3';
 
   const togglePlay = () => {
