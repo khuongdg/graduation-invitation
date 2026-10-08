@@ -109,7 +109,7 @@ export default function RsvpModal({
             <h3 className="success-modal-title">Thank You!</h3>
             <p className="success-modal-desc">
               {formData.status === 'Xác nhận tham gia'
-                ? 'Bạn đã xác nhận tham dự thành công. Hẹn gặp bạn tại lễ tốt nghiệp!'
+                ? 'Bạn đã xác nhận tham dự thành công. Hãy check mail để nhận thiệp đặc biệt và hẹn gặp bạn tại lễ tốt nghiệp nhé!'
                 : 'Cảm ơn bạn đã phản hồi. Rất tiếc vì bạn không thể tham dự, hẹn gặp bạn vào một dịp gần nhất nhé!'}
             </p>
             <button className="glass-submit-btn success-btn-anim" onClick={onCloseModal}>
