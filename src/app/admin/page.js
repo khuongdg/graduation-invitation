@@ -523,23 +523,11 @@ export default function AdminGoalPage() {
     return matchesSearch;
   });
 
-  const totalRPages = Math.ceil(filteredRsvps.length / ITEMS_PER_PAGE) || 1;
-  const currentRsvps = filteredRsvps.slice(
-    (rCurrentPage - 1) * ITEMS_PER_PAGE,
-    rCurrentPage * ITEMS_PER_PAGE
-  );
-
   useEffect(() => {
     if (mCurrentPage > totalMPages) {
       setMCurrentPage(totalMPages);
     }
   }, [memories.length, totalMPages, mCurrentPage]);
-
-  useEffect(() => {
-    if (rCurrentPage > totalRPages) {
-      setRCurrentPage(totalRPages);
-    }
-  }, [filteredRsvps.length, totalRPages, rCurrentPage]);
 
   // Render Login Prompt if Not Authenticated
   if (!isAuthenticated) {
@@ -633,12 +621,9 @@ export default function AdminGoalPage() {
               setRsvpFilterStatus={setRsvpFilterStatus}
               handleExportCsv={handleExportCsv}
               filteredRsvps={filteredRsvps}
-              currentRsvps={currentRsvps}
               handleDeleteRsvp={handleDeleteRsvp}
-              totalRPages={totalRPages}
               rCurrentPage={rCurrentPage}
               setRCurrentPage={setRCurrentPage}
-              ITEMS_PER_PAGE={ITEMS_PER_PAGE}
             />
           )}
         </div>

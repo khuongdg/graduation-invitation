@@ -22,6 +22,12 @@ export default function AdminRsvpTab({
   const totalPages = Math.ceil(filteredRsvps.length / actualPageSize) || 1;
   const currentPageSafe = Math.min(Math.max(1, rCurrentPage), totalPages);
 
+  React.useEffect(() => {
+    if (rCurrentPage > totalPages) {
+      setRCurrentPage(totalPages);
+    }
+  }, [totalPages, rCurrentPage, setRCurrentPage]);
+
   const startIndex = (currentPageSafe - 1) * actualPageSize;
   const endIndex = Math.min(startIndex + actualPageSize, filteredRsvps.length);
   const displayRsvps = pageSize === 'ALL'
