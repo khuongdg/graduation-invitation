@@ -12,11 +12,11 @@ const recentRegistrations = new Map();
 function isDuplicateRegistration(key) {
   const now = Date.now();
   const lastTime = recentRegistrations.get(key);
-  if (lastTime && now - lastTime < 15000) {
+  if (lastTime && now - lastTime < 2000) {
     return true;
   }
   recentRegistrations.set(key, now);
-  
+
   // Clean up entries older than 60s
   if (recentRegistrations.size > 100) {
     for (const [k, time] of recentRegistrations.entries()) {
@@ -68,7 +68,7 @@ export async function GET() {
   try {
     const googleScriptUrl = siteConfig.googleScriptUrl;
     const params = new URLSearchParams({ action: 'getRegistrations' });
-    
+
     let remoteRegistrations = [];
     let isRemoteSuccess = false;
 
@@ -151,7 +151,7 @@ export async function POST(request) {
       const fileExists = fs.existsSync(filePath);
       const csvHeader = 'STT,Họ và tên,Số điện thoại,Email,Trạng thái,Thời gian đăng ký\n';
       const timestamp = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
-      
+
       let stt = 1;
       if (fileExists) {
         const content = fs.readFileSync(filePath, 'utf8');
@@ -171,7 +171,7 @@ export async function POST(request) {
       console.error('Backup CSV writing failed:', csvError);
     }
 
-    // 2. Proxy request asynchronously to Google Sheets Apps Script Web App
+    // 2. Sync request to Google Sheets Apps Script Web App (await to guarantee write completes)
     const googleScriptUrl = siteConfig.googleScriptUrl;
     const params = new URLSearchParams({
       name,
@@ -180,16 +180,18 @@ export async function POST(request) {
       status: attendanceStatus
     });
 
-    // Background sync to Google Sheets (non-blocking for sub-50ms UX)
-    fetch(`${googleScriptUrl}?${params.toString()}`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-      redirect: 'follow'
-    }).catch((err) => {
-      console.error('Background Google Sheets sync warning:', err);
-    });
+    try {
+      await fetch(`${googleScriptUrl}?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        redirect: 'follow',
+        cache: 'no-store'
+      });
+    } catch (err) {
+      console.error('Google Sheets sync warning:', err);
+    }
 
     return NextResponse.json({ success: true, message: 'Đã lưu thông tin đăng ký thành công!' });
 

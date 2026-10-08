@@ -215,7 +215,7 @@ export default function AdminGoalPage() {
   };
 
   const handleExportCsv = () => {
-    if (rsvps.length === 0) {
+    if (deduplicatedRsvps.length === 0) {
       alert('Chưa có khách mời nào trong danh sách!');
       return;
     }
@@ -465,8 +465,50 @@ export default function AdminGoalPage() {
     return s.includes('tham gia') || s.includes('có') || s.includes('confirm') || s.includes('attending');
   };
 
+  // Deduplicate RSVPs to keep only the latest update per guest (matching phone or email)
+  const deduplicatedRsvps = React.useMemo(() => {
+    if (!Array.isArray(rsvps) || rsvps.length === 0) return [];
+
+    const keyMap = new Map();
+    const phoneToKey = new Map();
+    const emailToKey = new Map();
+    const nameToKey = new Map();
+    let keyCounter = 0;
+
+    rsvps.forEach((item) => {
+      const rawPhone = (item.phone || '').toString().replace(/^'/, '').trim();
+      const rawEmail = (item.email || '').toString().trim().toLowerCase();
+      const rawName = (item.name || '').toString().trim().toLowerCase();
+
+      const p = rawPhone.replace(/\D/g, '') || rawPhone;
+      const e = rawEmail;
+      const n = rawName;
+
+      let key = null;
+      if (p && phoneToKey.has(p)) {
+        key = phoneToKey.get(p);
+      } else if (e && emailToKey.has(e)) {
+        key = emailToKey.get(e);
+      } else if (!p && !e && n && nameToKey.has(n)) {
+        key = nameToKey.get(n);
+      }
+
+      if (!key) {
+        key = `user_${++keyCounter}`;
+      }
+
+      if (p) phoneToKey.set(p, key);
+      if (e) emailToKey.set(e, key);
+      if (n) nameToKey.set(n, key);
+
+      keyMap.set(key, item);
+    });
+
+    return Array.from(keyMap.values());
+  }, [rsvps]);
+
   // Section 3 (RSVP Guests) Filtering & Pagination Logic
-  const filteredRsvps = rsvps.filter((r) => {
+  const filteredRsvps = deduplicatedRsvps.filter((r) => {
     const query = rsvpSearch.trim().toLowerCase();
     const matchesSearch =
       !query ||
@@ -519,7 +561,7 @@ export default function AdminGoalPage() {
         setActiveTab={setActiveTab}
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
-        rsvpsCount={rsvps.length}
+        rsvpsCount={deduplicatedRsvps.length}
       />
 
       {/* Main Content Workspace Area */}
@@ -582,7 +624,7 @@ export default function AdminGoalPage() {
           {/* TAB 3: Guest RSVP Management */}
           {activeTab === 'rsvps' && (
             <AdminRsvpTab
-              rsvps={rsvps}
+              rsvps={deduplicatedRsvps}
               rsvpLoading={rsvpLoading}
               checkIsAttending={checkIsAttending}
               rsvpSearch={rsvpSearch}
